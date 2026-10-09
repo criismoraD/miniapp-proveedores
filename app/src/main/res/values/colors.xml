@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Corporate Navy Palette -->
+    <color name="navy_primary">#0A192F</color>
+    <color name="navy_dark">#060D1A</color>
+    <color name="navy_surface">#102A56</color>
+    <color name="navy_card">#17356D</color>
+    <color name="navy_accent">#1E3A8A</color>
+    <color name="navy_light_bg">#EDF2FB</color>
+    
+    <!-- Gold / Amber Palette -->
+    <color name="gold_primary">#D4AF37</color>
+    <color name="gold_accent">#F59E0B</color>
+    <color name="gold_light">#FFFBEB</color>
+    <color name="gold_badge_bg">#FEF3C7</color>
+    <color name="gold_dark">#996515</color>
+
+    <!-- Neutral & Utility -->
+    <color name="bg_canvas">#F8FAFC</color>
+    <color name="card_white">#FFFFFF</color>
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_muted">#94A3B8</color>
+    <color name="border_light">#E2E8F0</color>
+    <color name="border_gold">#E5C058</color>
+
+    <!-- Success / Savings -->
+    <color name="green_save">#059669</color>
+    <color name="green_save_bg">#D1FAE5</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
