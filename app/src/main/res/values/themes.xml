@@ -1,110 +1,53 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-
-    <!-- ==========================================================
-         Tema base: Material 3 con la paleta "Papel y Tinta".
-         ========================================================== -->
+    <!-- Base application theme: Corporate Navy & Gold (Initial Design c784cfe) -->
     <style name="Base.Theme.ProvedoresChiclayo" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/ink</item>
-        <item name="colorOnPrimary">@color/paper_on_ink</item>
-        <item name="colorPrimaryContainer">@color/paper_deep</item>
-        <item name="colorOnPrimaryContainer">@color/ink</item>
-
-        <item name="colorSecondary">@color/gilt</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="colorSecondaryContainer">@color/gilt_soft</item>
-        <item name="colorOnSecondaryContainer">@color/gilt_dark</item>
-
-        <item name="colorTertiary">@color/sage</item>
-        <item name="colorError">@color/stamp</item>
-
-        <item name="colorSurface">@color/paper_surface</item>
-        <item name="colorOnSurface">@color/ink</item>
-        <item name="colorSurfaceVariant">@color/paper_deep</item>
-        <item name="colorOnSurfaceVariant">@color/ink_muted</item>
-        <item name="colorSurfaceInverse">@color/ink</item>
-        <item name="colorOnSurfaceInverse">@color/paper_on_ink</item>
-
-        <item name="colorOutline">@color/rule_strong</item>
-        <item name="colorOutlineVariant">@color/rule</item>
-        <item name="colorControlHighlight">@color/ripple_ink</item>
-
-        <item name="android:colorBackground">@color/paper_bg</item>
-        <item name="android:windowBackground">@drawable/bg_paper</item>
-        <item name="android:statusBarColor">@color/paper_bg</item>
-        <item name="android:navigationBarColor">@color/paper_bg</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <item name="colorPrimary">@color/navy_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/gold_accent</item>
+        <item name="colorOnSecondary">@color/navy_primary</item>
+        <item name="android:statusBarColor">@color/navy_primary</item>
+        <item name="android:navigationBarColor">@color/navy_primary</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
     </style>
 
     <style name="Theme.ProvedoresChiclayo" parent="Base.Theme.ProvedoresChiclayo" />
 
-    <!-- ==========================================================
-         Tipografía: EB Garamond (serif de libro) para títulos y precios,
-         sans del sistema para lectura de datos.
-         ========================================================== -->
-    <style name="Pv.Masthead">
-        <item name="android:fontFamily">@font/ebgaramond_bold</item>
-        <item name="android:textSize">32sp</item>
-        <item name="android:textColor">@color/ink</item>
-        <item name="android:letterSpacing">0.02</item>
-    </style>
+    <!-- Typography & widget styles -->
+    <style name="Pv" />
 
     <style name="Pv.Display">
-        <item name="android:fontFamily">@font/ebgaramond_bold</item>
-        <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/ink</item>
+        <item name="android:textColor">@color/navy_primary</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Pv.Title">
-        <item name="android:fontFamily">@font/ebgaramond_semibold</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/ink</item>
+        <item name="android:textColor">@color/navy_primary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Pv.Headline">
-        <item name="android:fontFamily">@font/ebgaramond_semibold</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:textColor">@color/ink</item>
-    </style>
-
-    <style name="Pv.Price">
-        <item name="android:fontFamily">@font/ebgaramond_bold</item>
-        <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/ink</item>
-        <item name="android:fontFeatureSettings">lnum, tnum</item>
-    </style>
-
-    <style name="Pv.Italic">
-        <item name="android:fontFamily">@font/ebgaramond_italic</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/ink_soft</item>
+        <item name="android:textColor">@color/navy_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Pv.Body">
+        <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/ink_soft</item>
     </style>
 
     <style name="Pv.Caption">
+        <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/ink_muted</item>
     </style>
 
     <style name="Pv.Overline">
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/text_muted</item>
         <item name="android:textSize">11sp</item>
-        <item name="android:textColor">@color/ink_muted</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:letterSpacing">0.14</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- ==========================================================
-         Animaciones de ventanas de diálogo (fundido + leve escala)
-         ========================================================== -->
-    <style name="Anim.ProvedoresChiclayo.Dialog">
-        <item name="android:windowEnterAnimation">@anim/paper_fade_scale_in</item>
-        <item name="android:windowExitAnimation">@anim/paper_fade_scale_out</item>
-    </style>
-
+    <style name="Anim.ProvedoresChiclayo" parent="android:Animation" />
 </resources>

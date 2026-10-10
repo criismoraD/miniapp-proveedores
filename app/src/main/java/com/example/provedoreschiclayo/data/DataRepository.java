@@ -156,6 +156,71 @@ public class DataRepository {
                 "💎 Mayor Variedad"
         ));
 
+        // 11. Mercado Modelo Central (centro neurálgico abarrotero)
+        sups.add(new Supplier(
+                "sup_modelo",
+                "Distribuidora Mayorista Mercado Modelo",
+                "Chiclayo Centro",
+                "Jr. Arica 450 (frente al Modelo), Chiclayo",
+                "979888111",
+                -6.7735, -79.8430,
+                3.80, 0.75, 130.0, 4.8,
+                "25 - 40 min",
+                "🔥 Ofertas Mercado Modelo"
+        ));
+
+        // 12. La Despensa SAC (grandes fardos y sacos en Leguía)
+        sups.add(new Supplier(
+                "sup_despensa",
+                "Comercializadora La Despensa SAC",
+                "J.L. Ortiz",
+                "Av. Augusto B. Leguía 1890, J.L. Ortiz",
+                "978444222",
+                -6.7590, -79.8380,
+                3.50, 0.70, 140.0, 4.7,
+                "30 - 45 min",
+                "🌾 Granel y Fardos Directos"
+        ));
+
+        // 13. Pomalca - Tumán (cobertura del valle azucarero)
+        sups.add(new Supplier(
+                "sup_pomalca",
+                "Depósito Mayorista Pomalca - Tumán",
+                "Pomalca",
+                "Av. El Tren 210, Pomalca",
+                "974555333",
+                -6.7680, -79.7750,
+                4.50, 0.65, 150.0, 4.5,
+                "40 - 60 min",
+                "🚛 Despacho Valle Azucarero"
+        ));
+
+        // 14. Pimentel Costa (abastecimiento circuito de playas)
+        sups.add(new Supplier(
+                "sup_pimentel",
+                "Distribuidora Costa & Pimentel",
+                "Pimentel",
+                "Carretera Pimentel km 3.2, Pimentel",
+                "972666444",
+                -6.8250, -79.9100,
+                4.80, 0.60, 160.0, 4.6,
+                "35 - 50 min",
+                "🌊 Especialista Costa y Balnearios"
+        ));
+
+        // 15. Av. Bolivia Mayorista (Moshoqueque Norte)
+        sups.add(new Supplier(
+                "sup_bolivia",
+                "Abarrotes Av. Bolivia Norte",
+                "J.L. Ortiz",
+                "Av. Bolivia 780, Moshoqueque",
+                "971777555",
+                -6.7540, -79.8310,
+                3.40, 0.75, 135.0, 4.9,
+                "20 - 35 min",
+                "⭐ Despacho Rápido Moshoqueque"
+        ));
+
         return sups;
     }
 
@@ -170,6 +235,11 @@ public class DataRepository {
         Supplier sReque = suppliers.get(7);
         Supplier sEten = suppliers.get(8);
         Supplier sOeste = suppliers.get(9);
+        Supplier sModelo = suppliers.get(10);
+        Supplier sDespensa = suppliers.get(11);
+        Supplier sPomalca = suppliers.get(12);
+        Supplier sPimentel = suppliers.get(13);
+        Supplier sBolivia = suppliers.get(14);
 
         List<Product> products = new ArrayList<>();
 
@@ -178,6 +248,8 @@ public class DataRepository {
         p1.addOffer(new SupplierOffer(sMosho, 23.50, 180, "Pack x 12 (Mand., Manz., Berry)"));
         p1.addOffer(new SupplierOffer(sBalta, 24.20, 95, "Pack x 12 surtido sellado"));
         p1.addOffer(new SupplierOffer(sLamba, 22.80, 210, "Oferta Lambayeque x 12 unid."));
+        p1.addOffer(new SupplierOffer(sModelo, 23.20, 150, "Pack x 12 Mercado Modelo"));
+        p1.addOffer(new SupplierOffer(sDespensa, 23.40, 120, "Pack x 12 sellado de fábrica"));
         p1.addOffer(new SupplierOffer(sBebidas, 23.00, 450, "Caja mayorista fábrica"));
         products.add(p1);
 
@@ -199,18 +271,23 @@ public class DataRepository {
         Product p4 = new Product("p_arroz", "Arroz Superior Costeño", "Abarrotes", "Costeño", "Saco sellado x 50 kg", "🌾", R.drawable.img_arroz);
         p4.addOffer(new SupplierOffer(sMosho, 168.00, 85, "Saco 50 kg grano seleccionado"));
         p4.addOffer(new SupplierOffer(sLamba, 165.00, 130, "Saco 50 kg directo molino"));
+        p4.addOffer(new SupplierOffer(sDespensa, 166.00, 110, "Saco 50 kg Leguía por mayor"));
+        p4.addOffer(new SupplierOffer(sPomalca, 164.50, 95, "Saco 50 kg precio de almacén"));
         p4.addOffer(new SupplierOffer(sVictoria, 167.50, 65, "Saco 50 kg almacén La Victoria"));
         products.add(p4);
 
         // 5. ACEITE PRIMOR
         Product p5 = new Product("p_aceite", "Aceite Primor Clásico 1L", "Abarrotes", "Alicorp", "Caja x 12 botellas 1 Litro", "🛢️", R.drawable.img_aceite);
         p5.addOffer(new SupplierOffer(sMosho, 86.00, 110, "Caja x 12 de 1000ml"));
+        p5.addOffer(new SupplierOffer(sModelo, 85.50, 90, "Caja x 12 precio Mercado Modelo"));
+        p5.addOffer(new SupplierOffer(sDespensa, 85.80, 100, "Caja x 12 fardo cerrado"));
         p5.addOffer(new SupplierOffer(sBalta, 87.50, 80, "Caja x 12 sellada"));
         p5.addOffer(new SupplierOffer(sVictoria, 85.50, 95, "Caja x 12 promoción"));
         products.add(p5);
 
         // 6. AZÚCAR CARTAVIO
         Product p6 = new Product("p_azucar", "Azúcar Rubia Cartavio", "Abarrotes", "Cartavio", "Saco industrial x 50 kg", "⚪", R.drawable.img_azucar);
+        p6.addOffer(new SupplierOffer(sPomalca, 138.00, 160, "Saco 50 kg directo valle azucarero"));
         p6.addOffer(new SupplierOffer(sMosho, 142.00, 90, "Saco 50 kg cosechado norte"));
         p6.addOffer(new SupplierOffer(sLamba, 139.50, 140, "Saco 50 kg molino"));
         p6.addOffer(new SupplierOffer(sVictoria, 141.00, 50, "Saco 50 kg"));
@@ -219,12 +296,15 @@ public class DataRepository {
         // 7. LECHE GLORIA AZUL
         Product p7 = new Product("p_leche", "Leche Gloria Azul 400g", "Abarrotes", "Gloria", "Plancha x 24 latas", "🥛", R.drawable.img_leche);
         p7.addOffer(new SupplierOffer(sMosho, 88.00, 160, "Plancha 24 tarros etiqueta azul"));
+        p7.addOffer(new SupplierOffer(sBolivia, 87.80, 130, "Plancha 24 tarros stock fresco"));
         p7.addOffer(new SupplierOffer(sBalta, 89.50, 110, "Plancha 24 latas enteras"));
         p7.addOffer(new SupplierOffer(sLamba, 87.50, 180, "Plancha 24 unidades oferta"));
         products.add(p7);
 
         // 8. GALLETAS CASINO
         Product p8 = new Product("p_casino", "Galletas Casino Surtidas", "Golosinas", "Victoria", "Caja display x 24 paquetes", "🍪", R.drawable.img_casino);
+        p8.addOffer(new SupplierOffer(sModelo, 18.00, 250, "Caja x 24 display Mercado Modelo"));
+        p8.addOffer(new SupplierOffer(sDespensa, 18.10, 180, "Caja x 24 paquetes surtidos"));
         p8.addOffer(new SupplierOffer(sMosho, 18.50, 220, "Caja x 24 (Menta, Choc, Fresa)"));
         p8.addOffer(new SupplierOffer(sBalta, 19.00, 130, "Caja display x 24"));
         p8.addOffer(new SupplierOffer(sVictoria, 18.20, 150, "Caja display x 24 unidades"));
@@ -232,6 +312,8 @@ public class DataRepository {
 
         // 9. GALLETAS SODA SAN JORGE
         Product p9 = new Product("p_soda", "Galleta Soda San Jorge", "Golosinas", "San Jorge", "Caja display x 24 paquetes", "🥐", R.drawable.img_soda);
+        p9.addOffer(new SupplierOffer(sModelo, 15.00, 220, "Caja x 24 crocantes doraditas"));
+        p9.addOffer(new SupplierOffer(sBolivia, 15.10, 170, "Caja display x 24 Moshoqueque"));
         p9.addOffer(new SupplierOffer(sMosho, 15.80, 190, "Caja display x 24 paquetes"));
         p9.addOffer(new SupplierOffer(sLamba, 15.20, 240, "Caja display x 24"));
         p9.addOffer(new SupplierOffer(sVictoria, 15.50, 100, "Caja display x 24"));
@@ -325,6 +407,8 @@ public class DataRepository {
 
         // 22. PAPAS LAYS
         Product p22 = new Product("p_lays", "Papas Lay's Clásicas 40g", "Golosinas", "Lay's", "Caja x 24 bolsas", "🥔", R.drawable.img_lays);
+        p22.addOffer(new SupplierOffer(sModelo, 28.90, 140, "Caja x 24 bolsas Mercado Modelo"));
+        p22.addOffer(new SupplierOffer(sDespensa, 29.20, 110, "Caja x 24 bolsas fardo"));
         p22.addOffer(new SupplierOffer(sOeste, 29.40, 120, "Caja x 24 bolsas"));
         p22.addOffer(new SupplierOffer(sReque, 29.80, 90, "Caja x 24 bolsas clásicas"));
         p22.addOffer(new SupplierOffer(sMosho, 30.00, 110, "Caja x 24 bolsas"));

@@ -1,41 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ==========================================================
-         Paleta "Papel y Tinta"
-         Nombres semánticos: cada color describe su rol, no su tono.
-         La variante nocturna está en values-night/colors.xml.
-         ========================================================== -->
+    <!-- Corporate Navy Palette -->
+    <color name="navy_primary">#0A192F</color>
+    <color name="navy_dark">#060D1A</color>
+    <color name="navy_surface">#102A56</color>
+    <color name="navy_card">#17356D</color>
+    <color name="navy_accent">#1E3A8A</color>
+    <color name="navy_light_bg">#EDF2FB</color>
+    
+    <!-- Gold / Amber Palette -->
+    <color name="gold_primary">#D4AF37</color>
+    <color name="gold_accent">#F59E0B</color>
+    <color name="gold_light">#FFFBEB</color>
+    <color name="gold_badge_bg">#FEF3C7</color>
+    <color name="gold_dark">#996515</color>
 
-    <!-- Papel -->
-    <color name="paper_bg">#F2ECDF</color>          <!-- Fondo de página -->
-    <color name="paper_surface">#FBF8F1</color>     <!-- Tarjetas y hojas -->
-    <color name="paper_deep">#E8DFCB</color>        <!-- Superficies hundidas / chips -->
-    <color name="paper_on_ink">#F7F2E7</color>      <!-- Texto sobre tinta -->
+    <!-- Neutral & Utility -->
+    <color name="bg_canvas">#F8FAFC</color>
+    <color name="card_white">#FFFFFF</color>
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_muted">#94A3B8</color>
+    <color name="border_light">#E2E8F0</color>
+    <color name="border_gold">#E5C058</color>
 
-    <!-- Tinta -->
-    <color name="ink">#1E2331</color>               <!-- Texto principal y acciones -->
-    <color name="ink_soft">#3F4656</color>          <!-- Texto secundario fuerte -->
-    <color name="ink_muted">#6E6755</color>         <!-- Metadatos, etiquetas -->
-    <color name="rule">#D3C8B0</color>              <!-- Filetes y bordes finos -->
-    <color name="rule_strong">#9C917A</color>       <!-- Bordes de campos y foco -->
-
-    <!-- Dorado de imprenta -->
-    <color name="gilt">#A8803B</color>
-    <color name="gilt_soft">#F1E6CC</color>
-    <color name="gilt_dark">#6B4F17</color>
-    <color name="gilt_ripple">#33A8803B</color>
-
-    <!-- Sello de tinta roja (acción confirmada / alerta) -->
-    <color name="stamp">#9E3B2B</color>
-    <color name="stamp_soft">#F5E2DA</color>
-
-    <!-- Verde musgo (ahorro, envío gratis) -->
-    <color name="sage">#3B6A50</color>
-    <color name="sage_soft">#E1EADC</color>
-
-    <color name="ripple_ink">#1F1E2331</color>
-    <color name="scrim">#801E2331</color>
+    <!-- Success / Savings -->
+    <color name="green_save">#059669</color>
+    <color name="green_save_bg">#D1FAE5</color>
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Backwards compatibility aliases -->
+    <color name="ink">@color/navy_primary</color>
+    <color name="ink_title">@color/navy_primary</color>
+    <color name="ink_muted">@color/text_secondary</color>
+    <color name="ink_soft">@color/navy_surface</color>
+    <color name="paper">@color/bg_canvas</color>
+    <color name="paper_bg">@color/bg_canvas</color>
+    <color name="paper_surface">@color/card_white</color>
+    <color name="paper_deep">#EDF2FB</color>
+    <color name="paper_dark">#E2E8F0</color>
+    <color name="paper_input">#FFFFFF</color>
+    <color name="paper_on_ink">@color/white</color>
+    <color name="gilt">@color/gold_primary</color>
+    <color name="gilt_soft">@color/gold_light</color>
+    <color name="gilt_ripple">#25D4AF37</color>
+    <color name="rule">@color/border_light</color>
+    <color name="rule_strong">@color/border_gold</color>
+    <color name="rule_faint">#F1F5F9</color>
+    <color name="sage">@color/green_save</color>
+    <color name="sage_soft">@color/green_save_bg</color>
+    <color name="stamp">#B91C1C</color>
+    <color name="stamp_soft">#FEE2E2</color>
 </resources>

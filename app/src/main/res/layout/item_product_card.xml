@@ -1,73 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardProduct"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardBackgroundColor="@color/paper_surface"
-    app:cardCornerRadius="6dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/rule"
-    app:strokeWidth="1dp">
+    android:layout_marginStart="14dp"
+    android:layout_marginTop="7dp"
+    android:layout_marginEnd="14dp"
+    android:layout_marginBottom="9dp"
+    app:cardBackgroundColor="@color/card_white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="16dp">
 
-        <!-- Lámina del producto + datos -->
+        <!-- Top Section: Image + Product Info + Rating -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <FrameLayout
-                android:layout_width="96dp"
-                android:layout_height="96dp">
+            <!-- Rounded Real Product Packshot -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="86dp"
+                android:layout_height="86dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#F8FAFC">
 
-                <com.google.android.material.card.MaterialCardView
+                <ImageView
+                    android:id="@+id/ivProductImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:cardBackgroundColor="@color/paper_deep"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/rule_strong"
-                    app:strokeWidth="0.5dp">
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/img_sporade" />
+            </androidx.cardview.widget.CardView>
 
-                    <ImageView
-                        android:id="@+id/ivProductImage"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@null"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/img_sporade" />
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Sello de tinta que aparece al añadir al pedido -->
-                <TextView
-                    android:id="@+id/tvStamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="8dp"
-                    android:alpha="0"
-                    android:background="@drawable/bg_stamp"
-                    android:fontFamily="sans-serif-black"
-                    android:letterSpacing="0.12"
-                    android:paddingStart="6dp"
-                    android:paddingTop="2dp"
-                    android:paddingEnd="6dp"
-                    android:paddingBottom="2dp"
-                    android:text="AÑADIDO"
-                    android:textAllCaps="true"
-                    android:textColor="@color/stamp"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-            </FrameLayout>
-
+            <!-- Product Hierarchy with Breathing Room -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -75,177 +48,227 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tvProductBrandCategory"
-                    style="@style/Pv.Overline"
-                    android:layout_width="wrap_content"
+                <!-- Category & Product Rating Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="10.5sp"
-                    android:text="Bebidas · AJE" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
+                    <TextView
+                        android:id="@+id/tvProductBrandCategory"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="BEBIDAS • AJE"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <!-- Product Rating Pill -->
+                    <TextView
+                        android:id="@+id/tvProductRating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rating_pill"
+                        android:text="★ 4.8"
+                        android:textColor="#D97706"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Product Name -->
                 <TextView
                     android:id="@+id/tvProductName"
-                    style="@style/Pv.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Sporade 500ml"
+                    android:textColor="@color/navy_primary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <!-- Presentation -->
+                <TextView
+                    android:id="@+id/tvProductPresentation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:ellipsize="end"
-                    android:maxLines="2"
-                    android:text="Sporade 500ml" />
-
-                <TextView
-                    android:id="@+id/tvProductPresentation"
-                    style="@style/Pv.Italic"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:ellipsize="end"
                     android:maxLines="1"
-                    android:textSize="14sp"
-                    android:text="Pack x 12 botellas surtidas" />
+                    android:text="Pack x 12 botellas surtidas"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
 
-                <!-- Mejor oferta según criterio activo -->
+                <!-- Best Supplier Row with Supplier Rating & Distance -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="6dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/tvBestSupplierName"
-                        style="@style/Pv.Body"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ellipsize="end"
-                        android:fontFamily="sans-serif-medium"
                         android:maxLines="1"
-                        android:textColor="@color/ink"
-                        android:textSize="13sp"
-                        android:text="Moshoqueque Central" />
+                        android:text="🏢 Moshoqueque Central"
+                        android:textColor="@color/navy_surface"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <!-- Supplier Rating -->
+                    <TextView
+                        android:id="@+id/tvSupplierRating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:background="@drawable/bg_rating_pill"
+                        android:text="★ 4.8"
+                        android:textColor="#D97706"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvSupplierDistance"
-                        style="@style/Pv.Caption"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:background="@drawable/bg_pill_rule"
+                        android:background="@drawable/bg_pill_gray"
                         android:paddingStart="6dp"
                         android:paddingTop="2dp"
                         android:paddingEnd="6dp"
                         android:paddingBottom="2dp"
-                        android:text="0.2 km"
-                        android:textColor="@color/ink_soft"
-                        android:textSize="11sp" />
+                        android:text="📍 0.2 km"
+                        android:textColor="@color/navy_primary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Filete de tinta -->
+        <!-- Divider Line with Breathing Room -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="10dp"
-            android:background="@color/rule" />
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/border_light" />
 
-        <!-- Precio y flete -->
+        <!-- Price & Delivery Section: 2-line layout, never overlaps -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Line 1: Unit Price + Delivery Badge -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvProductUnitPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="S/ 23.50"
+                    android:textColor="@color/navy_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDeliveryBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_pill_green"
+                    android:paddingStart="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="3dp"
+                    android:text="🚚 Flete S/ 3.50"
+                    android:textColor="@color/green_save"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Line 2: Total in Bodega -->
+            <TextView
+                android:id="@+id/tvTotalCalculatedPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Total en tu local: S/ 27.00"
+                android:textColor="@color/navy_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Actions Row: Spacious, Touch-Friendly Buttons Below Price -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvProductUnitPrice"
-                style="@style/Pv.Price"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnCompareSuppliers"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="S/ 23.50" />
+                android:layout_weight="1"
+                android:background="@drawable/bg_navy_button"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingTop="11dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="11dp"
+                android:text="🔍 Comparar Proveedores"
+                android:textColor="@color/gold_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvDeliveryBadge"
-                style="@style/Pv.Caption"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnQuickAdd"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:background="@drawable/bg_pill_sage"
-                android:paddingStart="7dp"
-                android:paddingTop="3dp"
-                android:paddingEnd="7dp"
-                android:paddingBottom="3dp"
-                android:text="Flete S/ 3.50"
-                android:textColor="@color/sage"
-                android:textSize="12sp" />
+                android:layout_weight="1"
+                android:background="@drawable/bg_gold_button"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingTop="11dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="11dp"
+                android:text="+ Añadir al Pedido"
+                android:textColor="@color/navy_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvTotalCalculatedPrice"
-            style="@style/Pv.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Total en tu local: S/ 27.00" />
-
-        <!-- Acciones: comparar y pedir -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCompareSuppliers"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:minHeight="42dp"
-                android:text="Comparar (1)"
-                android:textColor="@color/ink"
-                android:textSize="13sp"
-                app:cornerRadius="10dp"
-                app:icon="@drawable/ic_swap"
-                app:iconGravity="textStart"
-                app:iconTint="@color/ink"
-                app:strokeColor="@color/rule_strong" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnQuickAdd"
-                style="@style/Widget.Material3.Button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:minHeight="42dp"
-                android:text="Pedir"
-                android:textColor="@color/paper_on_ink"
-                android:textSize="13sp"
-                app:backgroundTint="@color/ink"
-                app:cornerRadius="10dp"
-                app:icon="@drawable/ic_add"
-                app:iconGravity="textStart"
-                app:iconTint="@color/paper_on_ink" />
-        </LinearLayout>
-
-        <!-- Ahorro (solo cuando es relevante) -->
+        <!-- Savings Hint Banner (Only if notable savings) -->
         <TextView
             android:id="@+id/tvSavingsHint"
-            style="@style/Pv.Italic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_pill_sage"
+            android:background="@drawable/bg_gold_badge"
             android:paddingStart="10dp"
             android:paddingTop="6dp"
             android:paddingEnd="10dp"
             android:paddingBottom="6dp"
-            android:text="Ahorras S/ 6.20 comprando en este distribuidor"
-            android:textColor="@color/sage"
-            android:textSize="13sp"
-            android:visibility="gone" />
+            android:text="💡 Ahorras S/ 6.20 en total comprando en este distribuidor"
+            android:textColor="@color/gold_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>

@@ -14,9 +14,15 @@ public class Product {
     public final String presentation;
     public final String emoji;
     public final int imageResId;
+    public final double rating;
+    public final int reviewCount;
     public final List<SupplierOffer> offers = new ArrayList<>();
 
     public Product(String id, String name, String category, String brand, String presentation, String emoji, int imageResId) {
+        this(id, name, category, brand, presentation, emoji, imageResId, 4.8, 120);
+    }
+
+    public Product(String id, String name, String category, String brand, String presentation, String emoji, int imageResId, double rating, int reviewCount) {
         this.id = id;
         this.name = name;
         this.category = category;
@@ -24,6 +30,8 @@ public class Product {
         this.presentation = presentation;
         this.emoji = emoji;
         this.imageResId = imageResId;
+        this.rating = rating;
+        this.reviewCount = reviewCount;
     }
 
     public void addOffer(SupplierOffer offer) {

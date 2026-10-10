@@ -1,29 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Papel y tinta en modo nocturno: papel carbón con tinta cálida. -->
+    <!-- Corporate Navy Palette Dark Mode -->
+    <color name="navy_primary">#0A192F</color>
+    <color name="navy_dark">#030712</color>
+    <color name="navy_surface">#102A56</color>
+    <color name="navy_card">#17356D</color>
+    <color name="navy_accent">#3B82F6</color>
+    <color name="navy_light_bg">#0F172A</color>
+    
+    <!-- Gold / Amber Palette Dark Mode -->
+    <color name="gold_primary">#FBBF24</color>
+    <color name="gold_accent">#F59E0B</color>
+    <color name="gold_light">#2A2415</color>
+    <color name="gold_badge_bg">#3D3217</color>
+    <color name="gold_dark">#FDE68A</color>
 
-    <color name="paper_bg">#14120E</color>
-    <color name="paper_surface">#1D1A15</color>
-    <color name="paper_deep">#2A251D</color>
-    <color name="paper_on_ink">#17140F</color>
+    <!-- Neutral & Utility Dark Mode -->
+    <color name="bg_canvas">#0A0F1D</color>
+    <color name="card_white">#111827</color>
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_muted">#64748B</color>
+    <color name="border_light">#1E293B</color>
+    <color name="border_gold">#D97706</color>
 
-    <color name="ink">#EEE6D3</color>
-    <color name="ink_soft">#CFC5B0</color>
-    <color name="ink_muted">#A09784</color>
-    <color name="rule">#3D372C</color>
-    <color name="rule_strong">#6B6350</color>
+    <!-- Success / Savings -->
+    <color name="green_save">#10B981</color>
+    <color name="green_save_bg">#064E3B</color>
 
-    <color name="gilt">#D8AE58</color>
-    <color name="gilt_soft">#3A2F17</color>
-    <color name="gilt_dark">#F0CF8A</color>
-    <color name="gilt_ripple">#33D8AE58</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 
-    <color name="stamp">#E0856F</color>
-    <color name="stamp_soft">#3B2019</color>
-
-    <color name="sage">#8CC6A0</color>
-    <color name="sage_soft">#1F3328</color>
-
-    <color name="ripple_ink">#1FEEE6D3</color>
-    <color name="scrim">#CC000000</color>
+    <!-- Backwards compatibility aliases -->
+    <color name="ink">#F8FAFC</color>
+    <color name="ink_title">#F8FAFC</color>
+    <color name="ink_muted">#94A3B8</color>
+    <color name="ink_soft">#334155</color>
+    <color name="paper">#0A0F1D</color>
+    <color name="paper_bg">#0A0F1D</color>
+    <color name="paper_surface">#111827</color>
+    <color name="paper_deep">#0F172A</color>
+    <color name="paper_dark">#1E293B</color>
+    <color name="paper_input">#1E293B</color>
+    <color name="paper_on_ink">#0A0F1D</color>
+    <color name="gilt">#FBBF24</color>
+    <color name="gilt_soft">#3D3217</color>
+    <color name="gilt_ripple">#25FBBF24</color>
+    <color name="rule">#1E293B</color>
+    <color name="rule_strong">#334155</color>
+    <color name="rule_faint">#0F172A</color>
+    <color name="sage">#10B981</color>
+    <color name="sage_soft">#064E3B</color>
+    <color name="stamp">#EF4444</color>
+    <color name="stamp_soft">#450A0A</color>
 </resources>
