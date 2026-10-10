@@ -259,7 +259,7 @@ public class DataRepository {
         // ---- Productos adicionales (sin foto propia: se muestra la lámina genérica) ----
 
         // 13. AGUA SAN LUIS
-        Product p13 = new Product("p_agua", "Agua San Luis 625ml", "Bebidas", "San Luis", "Caja x 24 botellas 625ml", "💧", 0);
+        Product p13 = new Product("p_agua", "Agua San Luis 625ml", "Bebidas", "San Luis", "Caja x 24 botellas 625ml", "💧", R.drawable.img_agua_sanluis);
         p13.addOffer(new SupplierOffer(sBebidas, 26.90, 260, "Caja x 24 fábrica"));
         p13.addOffer(new SupplierOffer(sFerrenafe, 27.20, 120, "Caja x 24 distribuidor"));
         p13.addOffer(new SupplierOffer(sMosho, 27.80, 140, "Caja x 24 botellas 625ml"));
@@ -267,14 +267,14 @@ public class DataRepository {
         products.add(p13);
 
         // 14. JUGO FRUGOS
-        Product p14 = new Product("p_frugos", "Jugo Frugos Durazno 200ml", "Bebidas", "Frugos", "Caja x 27 tetra briks", "🧃", 0);
+        Product p14 = new Product("p_frugos", "Jugo Frugos Durazno 200ml", "Bebidas", "Frugos", "Caja x 27 tetra briks", "🧃", R.drawable.img_frugos);
         p14.addOffer(new SupplierOffer(sBebidas, 30.80, 200, "Caja x 27 tetra briks"));
         p14.addOffer(new SupplierOffer(sOeste, 31.20, 110, "Caja x 27 surtidos"));
         p14.addOffer(new SupplierOffer(sLamba, 31.50, 80, "Caja x 27 oferta Lambayeque"));
         products.add(p14);
 
         // 15. LECHE EVAPORADA GLORIA
-        Product p15 = new Product("p_evaporada", "Leche Evaporada Gloria 400g", "Abarrotes", "Gloria", "Caja x 48 latas", "🥫", 0);
+        Product p15 = new Product("p_evaporada", "Leche Evaporada Gloria 400g", "Abarrotes", "Gloria", "Caja x 48 latas", "🥫", R.drawable.img_evaporada);
         p15.addOffer(new SupplierOffer(sLamba, 115.50, 75, "Caja x 48 latas"));
         p15.addOffer(new SupplierOffer(sMonsefu, 116.80, 40, "Caja x 48 latas enteras"));
         p15.addOffer(new SupplierOffer(sReque, 117.50, 55, "Caja x 48 unidades"));
@@ -282,49 +282,49 @@ public class DataRepository {
         products.add(p15);
 
         // 16. FIDEOS DON VITTORIO
-        Product p16 = new Product("p_fideos", "Fideos Don Vittorio Spaghetti 1kg", "Abarrotes", "Don Vittorio", "Caja x 10 paquetes 1kg", "🍝", 0);
+        Product p16 = new Product("p_fideos", "Fideos Don Vittorio Spaghetti 1kg", "Abarrotes", "Don Vittorio", "Caja x 10 paquetes 1kg", "🍝", R.drawable.img_fideos);
         p16.addOffer(new SupplierOffer(sFerrenafe, 20.80, 200, "Caja x 10 paquetes"));
         p16.addOffer(new SupplierOffer(sOeste, 21.40, 180, "Caja x 10 paquetes 1kg"));
         p16.addOffer(new SupplierOffer(sBalta, 21.90, 150, "Caja x 10 sellada"));
         products.add(p16);
 
         // 17. SAL EMSAL
-        Product p17 = new Product("p_sal", "Sal Marina Emsal 1kg", "Abarrotes", "Emsal", "Caja x 20 bolsas 1kg", "🧂", 0);
+        Product p17 = new Product("p_sal", "Sal Marina Emsal 1kg", "Abarrotes", "Emsal", "Caja x 20 bolsas 1kg", "🧂", R.drawable.img_sal);
         p17.addOffer(new SupplierOffer(sEten, 19.00, 90, "Caja x 20 bolsas"));
         p17.addOffer(new SupplierOffer(sMonsefu, 19.60, 70, "Caja x 20 bolsas 1kg"));
         p17.addOffer(new SupplierOffer(sMosho, 20.50, 120, "Caja x 20 bolsas selladas"));
         products.add(p17);
 
         // 18. HARINA BLANCA FLOR
-        Product p18 = new Product("p_harina", "Harina Blanca Flor 1kg", "Abarrotes", "Blanca Flor", "Caja x 10 bolsas 1kg", "🥖", 0);
+        Product p18 = new Product("p_harina", "Harina Blanca Flor 1kg", "Abarrotes", "Blanca Flor", "Caja x 10 bolsas 1kg", "🥖", R.drawable.img_harina);
         p18.addOffer(new SupplierOffer(sReque, 31.40, 80, "Caja x 10 bolsas"));
         p18.addOffer(new SupplierOffer(sMosho, 32.00, 100, "Caja x 10 bolsas 1kg"));
         p18.addOffer(new SupplierOffer(sBalta, 32.80, 90, "Caja x 10 sellada"));
         products.add(p18);
 
         // 19. CAFÉ ALTOMAYO
-        Product p19 = new Product("p_cafe", "Café Altomayo 170g", "Abarrotes", "Altomayo", "Caja x 24 frascos", "☕", 0);
+        Product p19 = new Product("p_cafe", "Café Altomayo 170g", "Abarrotes", "Altomayo", "Caja x 24 frascos", "☕", R.drawable.img_cafe);
         p19.addOffer(new SupplierOffer(sFerrenafe, 87.00, 50, "Caja x 24 frascos"));
         p19.addOffer(new SupplierOffer(sLamba, 88.00, 45, "Caja x 24 frascos oferta"));
         p19.addOffer(new SupplierOffer(sOeste, 90.50, 60, "Caja x 24 frascos"));
         products.add(p19);
 
         // 20. MAYONESA ALACENA
-        Product p20 = new Product("p_mayonesa", "Mayonesa Alacena 350g", "Abarrotes", "Alacena", "Caja x 12 frascos", "🥄", 0);
+        Product p20 = new Product("p_mayonesa", "Mayonesa Alacena 350g", "Abarrotes", "Alacena", "Caja x 12 frascos", "🥄", R.drawable.img_mayonesa);
         p20.addOffer(new SupplierOffer(sReque, 35.20, 60, "Caja x 12 frascos"));
         p20.addOffer(new SupplierOffer(sMonsefu, 35.80, 40, "Caja x 12 frascos"));
         p20.addOffer(new SupplierOffer(sMosho, 36.00, 80, "Caja x 12 frascos 350g"));
         products.add(p20);
 
         // 21. CHOCOLATE SUBLIME
-        Product p21 = new Product("p_sublime", "Chocolate Sublime Clásico 30g", "Golosinas", "Nestlé", "Display x 24 unidades", "🍫", 0);
+        Product p21 = new Product("p_sublime", "Chocolate Sublime Clásico 30g", "Golosinas", "Nestlé", "Display x 24 unidades", "🍫", R.drawable.img_sublime);
         p21.addOffer(new SupplierOffer(sEten, 26.50, 60, "Display x 24 unidades"));
         p21.addOffer(new SupplierOffer(sOeste, 26.80, 70, "Display x 24 barras"));
         p21.addOffer(new SupplierOffer(sBalta, 27.00, 90, "Display x 24 sellado"));
         products.add(p21);
 
         // 22. PAPAS LAYS
-        Product p22 = new Product("p_lays", "Papas Lay's Clásicas 40g", "Golosinas", "Lay's", "Caja x 24 bolsas", "🥔", 0);
+        Product p22 = new Product("p_lays", "Papas Lay's Clásicas 40g", "Golosinas", "Lay's", "Caja x 24 bolsas", "🥔", R.drawable.img_lays);
         p22.addOffer(new SupplierOffer(sOeste, 29.40, 120, "Caja x 24 bolsas"));
         p22.addOffer(new SupplierOffer(sReque, 29.80, 90, "Caja x 24 bolsas clásicas"));
         p22.addOffer(new SupplierOffer(sMosho, 30.00, 110, "Caja x 24 bolsas"));
