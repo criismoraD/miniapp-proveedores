@@ -32,6 +32,20 @@ def load_colors(path):
 
 COLORS = load_colors(os.path.join(RES, "values", "colors.xml"))
 
+# ---------------------------------------------------------------- temas
+# CAPTURAS_TEMA=papel (por defecto, colors.xml tal cual) | comercial (variante de catálogo).
+THEME = os.environ.get("CAPTURAS_TEMA", "papel")
+PALETA_COMERCIAL = {
+    "paper_bg": "#F4F6FB", "paper_surface": "#FFFFFF", "paper_deep": "#EEF2F8",
+    "paper_on_ink": "#FFFFFF", "ink": "#0F172A", "ink_soft": "#334155", "ink_muted": "#64748B",
+    "rule": "#E2E8F0", "rule_strong": "#CBD5E1",
+    "gilt": "#F97316", "gilt_soft": "#FFF4EC", "gilt_dark": "#C2410C",
+    "stamp": "#16A34A", "stamp_soft": "#DCFCE7", "sage": "#15803D", "sage_soft": "#DCFCE7",
+    "scrim": "#8C0F172A",
+}
+if THEME == "comercial":
+    COLORS.update(PALETA_COMERCIAL)
+
 
 def c(name):
     v = COLORS[name]
@@ -195,10 +209,60 @@ html, body {{ background: #444; }}
 """
 
 
+CSS_COMERCIAL = """
+.phone { background: #F4F6FB !important; }
+.overline { letter-spacing: .08em; font-weight: 600; }
+.masthead { font: 800 28px/1.1 Roboto, Arial, sans-serif; color: #1D4ED8; letter-spacing: -.01em; margin-top: 2px; }
+.rule2, .rule1 { display: none; }
+.hr { background: #E2E8F0; }
+.textbtn { font-weight: 600; color: #1D4ED8; }
+.locfield, .search, .outlined { background: #FFFFFF; border: none; box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 2px 8px rgba(15,23,42,.06); }
+.locfield { border-radius: 14px; }
+.search { border-radius: 28px; }
+.outlined { border-radius: 14px; color: #1D4ED8; }
+.locname { font-weight: 700; font-size: 15px; }
+.chips { margin-top: 10px; }
+.chip { border: none; border-radius: 999px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(15,23,42,.08); color: #334155; }
+.chip.on { background: #1D4ED8; color: #FFFFFF; box-shadow: 0 4px 10px rgba(29,78,216,.28); }
+.card, .block { background: #FFFFFF; border: none; border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 6px 16px rgba(15,23,42,.08); }
+.block.active { background: #EFF6FF; border: 1.5px solid #1D4ED8; box-shadow: 0 6px 16px rgba(29,78,216,.16); }
+.plate { border: none; border-radius: 14px; background: #EEF2F8; }
+.plate img { filter: none; }
+.stamp { background: #16A34A; color: #FFFFFF; border: none; border-radius: 999px; transform: translateX(-50%) rotate(0deg); padding: 4px 9px; letter-spacing: .08em; }
+.pname { font: 700 19px/1.2 Roboto, Arial, sans-serif; }
+.pres { font: 400 13px/1.3 Roboto, Arial, sans-serif; color: #64748B; }
+.price { font: 800 26px/1 Roboto, Arial, sans-serif; color: #0F172A; }
+.pill-rule { border-radius: 999px; background: #EEF2F8; color: #334155; }
+.pill-sage { border-radius: 999px; }
+.pill-gilt { border: none; border-radius: 999px; background: #FFF4EC; color: #C2410C; letter-spacing: .06em; }
+.btn-out { border: none; border-radius: 12px; background: #EEF2F8; color: #1D4ED8; font-weight: 600; }
+.btn-fill { border-radius: 12px; background: #1D4ED8; box-shadow: 0 4px 12px rgba(29,78,216,.3); font-weight: 600; }
+.savings { background: #DCFCE7; color: #15803D; font: 500 12.5px/1.35 Roboto, Arial, sans-serif; border-radius: 12px; }
+.cartbar { background: #1D4ED8; border-radius: 20px; box-shadow: 0 10px 24px rgba(29,78,216,.35); }
+.cartbar .t { font: 700 17px/1.2 Roboto, Arial, sans-serif; }
+.cartbar .s { color: #BFDBFE; }
+.cartbtn { border-radius: 12px; color: #1D4ED8; font-weight: 700; }
+.sheet { border-radius: 28px 28px 0 0; box-shadow: 0 -8px 28px rgba(15,23,42,.18); }
+.sheet .display { font: 800 24px/1.15 Roboto, Arial, sans-serif; letter-spacing: -.01em; }
+.stepbtn { border: none; border-radius: 12px; background: #EEF2F8; }
+.stepbtn.fill { background: #1D4ED8; color: #FFFFFF; box-shadow: 0 4px 10px rgba(29,78,216,.3); }
+.qty { font: 800 22px Roboto, Arial, sans-serif; }
+.blockdeep { border-radius: 14px; background: #EEF2F8; }
+.handle { background: #CBD5E1; }
+"""
+
+
 def page(body, css_extra=""):
-    return f"""<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+    out = f"""<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
 <style>{CSS}{css_extra}</style></head><body>
 <div class="phone">{body}</div></body></html>"""
+    if THEME == "comercial":
+        # Variante comercial: sans-serif en todo el documento (CSS base incluido) y capa de estilo propia.
+        # La capa comercial va DESPUÉS del CSS base para poder sobrescribirlo.
+        out = out.replace("</style>", CSS_COMERCIAL + "</style>", 1)
+        out = re.sub(r"EBG,\s*Georgia,\s*serif", "Roboto, Arial, sans-serif", out)
+    return out
 
 
 def base_screen(cart_html="", products_html="", extra_top=""):
