@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Papel y tinta en modo nocturno: papel carbón con tinta cálida. -->
+
+    <color name="paper_bg">#14120E</color>
+    <color name="paper_surface">#1D1A15</color>
+    <color name="paper_deep">#2A251D</color>
+    <color name="paper_on_ink">#17140F</color>
+
+    <color name="ink">#EEE6D3</color>
+    <color name="ink_soft">#CFC5B0</color>
+    <color name="ink_muted">#A09784</color>
+    <color name="rule">#3D372C</color>
+    <color name="rule_strong">#6B6350</color>
+
+    <color name="gilt">#D8AE58</color>
+    <color name="gilt_soft">#3A2F17</color>
+    <color name="gilt_dark">#F0CF8A</color>
+    <color name="gilt_ripple">#33D8AE58</color>
+
+    <color name="stamp">#E0856F</color>
+    <color name="stamp_soft">#3B2019</color>
+
+    <color name="sage">#8CC6A0</color>
+    <color name="sage_soft">#1F3328</color>
+
+    <color name="ripple_ink">#1FEEE6D3</color>
+    <color name="scrim">#CC000000</color>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Campo de selección (ubicación de bodega): ripple de tinta sobre papel. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/gilt_ripple">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/paper_surface" />
+            <corners android:radius="10dp" />
+            <stroke android:width="1dp" android:color="@color/rule_strong" />
+        </shape>
+    </item>
+</ripple>

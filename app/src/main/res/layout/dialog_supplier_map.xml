@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_rounded_sheet"
+    android:background="@drawable/bg_paper_card"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Header Row -->
+    <!-- Cabecera -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -19,50 +19,38 @@
             android:layout_centerVertical="true"
             android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
+                style="@style/Pv.Overline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🗺️"
-                    android:textSize="22sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Mapa de Proveedores"
-                    android:textColor="@color/navy_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:text="Plano de la red" />
 
             <TextView
-                android:id="@+id/tvMapBodegaSubtitle"
+                style="@style/Pv.Display"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="📍 Tu Bodega en: Chiclayo - Moshoqueque (JLO)"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:text="Mapa de proveedores" />
+
+            <TextView
+                android:id="@+id/tvMapBodegaSubtitle"
+                style="@style/Pv.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Tu bodega en: Chiclayo - Moshoqueque (JLO)" />
         </LinearLayout>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnMapClose"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/bg_circle_icon"
-            android:gravity="center"
-            android:text="✕"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:contentDescription="Cerrar"
+            app:icon="@drawable/ic_close"
+            app:iconTint="@color/ink_muted" />
     </RelativeLayout>
 
     <View
@@ -70,29 +58,32 @@
         android:layout_height="1dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:background="@color/border_light" />
+        android:background="@color/rule" />
 
-    <!-- Interactive WebView Map Container -->
-    <androidx.cardview.widget.CardView
+    <!-- Lienzo del mapa -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp">
+        app:cardBackgroundColor="@color/paper_deep"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/rule_strong"
+        app:strokeWidth="1dp">
 
         <WebView
             android:id="@+id/wvMap"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Selected Supplier Quick Detail Card (visible when tapping a pin) -->
+    <!-- Ficha del proveedor seleccionado -->
     <LinearLayout
         android:id="@+id/layoutSupplierInfoCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/bg_card_highlight"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_paper_card_active"
         android:orientation="vertical"
         android:padding="12dp">
 
@@ -104,37 +95,36 @@
 
             <TextView
                 android:id="@+id/tvMapSelectedSupplierName"
+                style="@style/Pv.Headline"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="🏢 Distribuidora Moshoqueque Central"
-                android:textColor="@color/navy_primary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="Distribuidora Moshoqueque Central" />
 
             <TextView
                 android:id="@+id/tvMapSelectedSupplierDistance"
+                style="@style/Pv.Overline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_gold_badge"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_pill_gilt"
                 android:paddingStart="8dp"
                 android:paddingTop="3dp"
                 android:paddingEnd="8dp"
                 android:paddingBottom="3dp"
-                android:text="📍 0.2 km"
-                android:textColor="@color/gold_dark"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textColor="@color/gilt_dark"
+                android:textSize="11sp"
+                android:text="0.2 km" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvMapSelectedSupplierDetails"
+            style="@style/Pv.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="Av. Kennedy 1240, Moshoqueque • Flete estimado: S/ 3.50 • ⏱️ 35-50 min"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:layout_marginTop="4dp"
+            android:textSize="13sp"
+            android:text="Toca un distribuidor en el mapa para ver su flete y tiempo estimado." />
     </LinearLayout>
 
 </LinearLayout>

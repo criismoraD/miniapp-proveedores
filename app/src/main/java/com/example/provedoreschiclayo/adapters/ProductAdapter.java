@@ -1,6 +1,8 @@
 package com.example.provedoreschiclayo.adapters;
 
 import android.content.Context;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import com.example.provedoreschiclayo.R;
 import com.example.provedoreschiclayo.models.DistrictLocation;
 import com.example.provedoreschiclayo.models.Product;
 import com.example.provedoreschiclayo.models.SupplierOffer;
+import com.example.provedoreschiclayo.ui.Motion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         void onCompareSuppliers(Product product);
         void onQuickAddToCart(Product product, SupplierOffer offer);
     }
+
+    private static final ColorMatrixColorFilter PLATE_FILTER = buildPlateFilter();
 
     private final Context context;
     private final List<Product> productList = new ArrayList<>();
@@ -66,11 +71,26 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         return productList.size();
     }
 
+    /** Lámina ligeramente desaturada y cálida, como una fotografía impresa. */
+    private static ColorMatrixColorFilter buildPlateFilter() {
+        ColorMatrix saturation = new ColorMatrix();
+        saturation.setSaturation(0.84f);
+        ColorMatrix warmth = new ColorMatrix(new float[]{
+                1f, 0f, 0f, 0f, 6f,
+                0f, 1f, 0f, 0f, 3f,
+                0f, 0f, 1f, 0f, -4f,
+                0f, 0f, 0f, 1f, 0f
+        });
+        saturation.postConcat(warmth);
+        return new ColorMatrixColorFilter(saturation);
+    }
+
     static class ProductViewHolder extends RecyclerView.ViewHolder {
         final ImageView ivProductImage;
         final TextView tvBrandCategory;
         final TextView tvName;
         final TextView tvPresentation;
+        final TextView tvStamp;
 
         final TextView tvBestSupplierName;
         final TextView tvSupplierDistance;
@@ -85,9 +105,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             ivProductImage = itemView.findViewById(R.id.ivProductImage);
+            ivProductImage.setColorFilter(PLATE_FILTER);
             tvBrandCategory = itemView.findViewById(R.id.tvProductBrandCategory);
             tvName = itemView.findViewById(R.id.tvProductName);
             tvPresentation = itemView.findViewById(R.id.tvProductPresentation);
+            tvStamp = itemView.findViewById(R.id.tvStamp);
 
             tvBestSupplierName = itemView.findViewById(R.id.tvBestSupplierName);
             tvSupplierDistance = itemView.findViewById(R.id.tvSupplierDistance);
@@ -98,21 +120,24 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
             btnCompare = itemView.findViewById(R.id.btnCompareSuppliers);
             btnQuickAdd = itemView.findViewById(R.id.btnQuickAdd);
+
+            Motion.pressScale(itemView);
         }
 
         void bind(Product product, DistrictLocation userLoc, String sortMode, OnProductActionListener listener) {
-            // Load real product image
+            // Lámina real del producto
             if (product.imageResId != 0) {
                 ivProductImage.setImageResource(product.imageResId);
             } else {
-                ivProductImage.setImageResource(R.drawable.img_sporade);
+                ivProductImage.setImageResource(R.drawable.ic_product_placeholder);
             }
 
-            tvBrandCategory.setText(product.category.toUpperCase() + " • " + product.brand);
+            tvBrandCategory.setText(product.category.toUpperCase(Locale.ROOT) + " · " + product.brand);
             tvName.setText(product.name);
             tvPresentation.setText(product.presentation);
+            tvStamp.setAlpha(0f);
 
-            // Pick the top offer based on selected filter
+            // Mejor oferta según el criterio activo
             SupplierOffer bestOffer = getSortedTopOffer(product, userLoc, sortMode);
 
             if (bestOffer != null) {
@@ -120,20 +145,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 double flete = bestOffer.supplier.calculateDeliveryFee(userLoc, bestOffer.price);
                 double total = bestOffer.price + flete;
 
-                tvBestSupplierName.setText("🏢 " + bestOffer.supplier.name);
-                tvSupplierDistance.setText(String.format(Locale.US, "📍 %.1f km", dist));
+                tvBestSupplierName.setText(bestOffer.supplier.name);
+                tvSupplierDistance.setText(String.format(Locale.US, "%.1f km", dist));
 
-                // Large readable price & delivery
                 tvProductUnitPrice.setText(String.format(Locale.US, "S/ %.2f", bestOffer.price));
                 if (flete <= 3.50) {
-                    tvDeliveryBadge.setText("⚡ Flete S/ 3.50");
+                    tvDeliveryBadge.setText("Flete S/ 3.50");
                 } else {
-                    tvDeliveryBadge.setText(String.format(Locale.US, "🚚 Flete S/ %.2f", flete));
+                    tvDeliveryBadge.setText(String.format(Locale.US, "Flete S/ %.2f", flete));
                 }
 
                 tvTotalCalculatedPrice.setText(String.format(Locale.US, "Total en tu local: S/ %.2f", total));
 
-                // Compute savings compared to highest total option
+                // Ahorro frente a la opción más cara
                 double highestTotal = 0;
                 for (SupplierOffer o : product.offers) {
                     double t = o.calculateTotalCost(userLoc, 1);
@@ -144,17 +168,21 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 double diff = highestTotal - total;
                 if (diff >= 1.50) {
                     tvSavingsHint.setVisibility(View.VISIBLE);
-                    tvSavingsHint.setText(String.format(Locale.US, "💡 Ahorras S/ %.2f comprando aquí vs otros distribuidores", diff));
+                    tvSavingsHint.setText(String.format(Locale.US,
+                            "Ahorras S/ %.2f comprando aquí frente a otros distribuidores", diff));
                 } else {
                     tvSavingsHint.setVisibility(View.GONE);
                 }
 
                 btnQuickAdd.setOnClickListener(v -> {
+                    // Sello de tinta como confirmación visual inmediata
+                    Motion.stamp(tvStamp);
+                    Motion.popBump(btnQuickAdd);
                     if (listener != null) listener.onQuickAddToCart(product, bestOffer);
                 });
             }
 
-            btnCompare.setText("🔍 Comparar (" + product.offers.size() + ")");
+            btnCompare.setText("Comparar (" + product.offers.size() + ")");
             btnCompare.setOnClickListener(v -> {
                 if (listener != null) listener.onCompareSuppliers(product);
             });
@@ -183,7 +211,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 }
                 return lowestFleteOffer;
             } else {
-                // Default: Most convenient (total cost = price + flete)
+                // Por defecto: más conveniente (precio + flete)
                 return product.getMostConvenientOffer(userLoc, 1);
             }
         }

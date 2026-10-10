@@ -1,60 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/llLocationItemRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:background="@drawable/bg_card_white"
+    android:background="@drawable/bg_paper_card"
     android:clickable="true"
     android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="12dp">
+    android:padding="14dp">
 
-    <TextView
+    <ImageView
         android:id="@+id/tvLocationPin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="📍"
-        android:textSize="18sp" />
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_place"
+        app:tint="@color/gilt" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="12dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvLocationName"
+            style="@style/Pv.Headline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chiclayo - Moshoqueque (JLO)"
-            android:textColor="@color/navy_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:text="Chiclayo - Moshoqueque (JLO)" />
 
         <TextView
             android:id="@+id/tvLocationReference"
+            style="@style/Pv.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cerca al Mercado Mayorista"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp" />
+            android:layout_marginTop="2dp"
+            android:text="Cerca al Mercado Mayorista" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/tvLocationStatusBadge"
+        style="@style/Pv.Overline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_pill_gray"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_pill_rule"
         android:paddingStart="8dp"
         android:paddingTop="4dp"
         android:paddingEnd="8dp"
         android:paddingBottom="4dp"
         android:text="Elegir"
-        android:textColor="@color/navy_primary"
-        android:textSize="11sp"
-        android:textStyle="bold" />
+        android:textColor="@color/ink"
+        android:textSize="10sp" />
 
 </LinearLayout>

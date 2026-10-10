@@ -1,83 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_rounded_sheet"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="20dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="24dp">
 
-    <!-- Header -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_sheet_handle" />
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
+                style="@style/Pv.Overline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📍"
-                android:textSize="22sp" />
+                android:text="Chiclayo y Lambayeque" />
 
-            <LinearLayout
+            <TextView
+                style="@style/Pv.Display"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="¿Dónde está tu Bodega?"
-                    android:textColor="@color/navy_primary"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Chiclayo y Lambayeque"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-            </LinearLayout>
+                android:layout_marginTop="2dp"
+                android:text="¿Dónde está tu bodega?" />
         </LinearLayout>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLocationClose"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/bg_circle_icon"
-            android:gravity="center"
-            android:text="✕"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:contentDescription="Cerrar"
+            app:icon="@drawable/ic_close"
+            app:iconTint="@color/ink_muted" />
     </RelativeLayout>
 
     <TextView
-        android:layout_width="match_parent"
+        style="@style/Pv.Body"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Selecciona tu zona para calcular fletes exactos, tiempos de llegada y encontrar qué distribuidor te conviene más según la distancia."
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp" />
+        android:text="Elige tu zona para calcular fletes exactos y encontrar qué distribuidor te conviene según la distancia." />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@color/border_light" />
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="14dp"
+        android:background="@color/rule" />
 
-    <!-- Container of location options -->
+    <!-- Ubicación precisa: GPS o marcar en el mapa -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUseGps"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="Usar mi GPS"
+            app:icon="@drawable/ic_my_location"
+            app:iconGravity="textStart"
+            app:iconTint="@color/paper_on_ink" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickOnMap"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text="En el mapa"
+            app:icon="@drawable/ic_map"
+            app:iconGravity="textStart"
+            app:iconTint="@color/ink" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/Pv.Overline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="Zonas de referencia" />
+
+    <!-- Opciones de ubicación -->
     <LinearLayout
         android:id="@+id/llLocationListContainer"
         android:layout_width="match_parent"
