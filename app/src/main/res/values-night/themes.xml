@@ -1,11 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme for night mode -->
+    <!-- Base application theme for night mode: papel carbón y tinta cálida -->
     <style name="Base.Theme.ProvedoresChiclayo" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/navy_surface</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">@color/gold_accent</item>
-        <item name="colorOnSecondary">@color/navy_dark</item>
-        <item name="android:statusBarColor">@color/navy_dark</item>
-        <item name="android:navigationBarColor">@color/navy_dark</item>
+        <item name="colorPrimary">@color/ink</item>
+        <item name="colorOnPrimary">@color/paper_on_ink</item>
+        <item name="colorPrimaryContainer">@color/paper_deep</item>
+        <item name="colorOnPrimaryContainer">@color/ink</item>
+
+        <item name="colorSecondary">@color/gilt</item>
+        <item name="colorOnSecondary">@color/paper_on_ink</item>
+        <item name="colorSecondaryContainer">@color/gilt_soft</item>
+        <item name="colorOnSecondaryContainer">@color/gilt_dark</item>
+
+        <item name="colorTertiary">@color/sage</item>
+        <item name="colorError">@color/stamp</item>
+
+        <item name="colorSurface">@color/paper_surface</item>
+        <item name="colorOnSurface">@color/ink</item>
+        <item name="colorSurfaceVariant">@color/paper_deep</item>
+        <item name="colorOnSurfaceVariant">@color/ink_muted</item>
+        <item name="colorSurfaceInverse">@color/ink</item>
+        <item name="colorOnSurfaceInverse">@color/paper_on_ink</item>
+
+        <item name="colorOutline">@color/rule_strong</item>
+        <item name="colorOutlineVariant">@color/rule</item>
+        <item name="colorControlHighlight">@color/ripple_ink</item>
+
+        <item name="android:colorBackground">@color/paper_bg</item>
+        <item name="android:windowBackground">@drawable/bg_paper</item>
+        <item name="android:statusBarColor">@color/paper_bg</item>
+        <item name="android:navigationBarColor">@color/paper_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

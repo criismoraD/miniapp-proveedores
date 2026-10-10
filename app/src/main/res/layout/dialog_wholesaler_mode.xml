@@ -1,111 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_rounded_sheet"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:paddingStart="20dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="24dp">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_sheet_handle" />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:text="🏢 Vista Proveedor Mayorista"
-            android:textColor="@color/navy_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
 
-        <TextView
+            <TextView
+                style="@style/Pv.Overline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Próximamente" />
+
+            <TextView
+                style="@style/Pv.Display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Vista proveedor mayorista" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnWholesalerClose"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/bg_circle_icon"
-            android:gravity="center"
-            android:text="✕"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:layout_centerVertical="true"
+            android:contentDescription="Cerrar"
+            app:icon="@drawable/ic_close"
+            app:iconTint="@color/ink_muted" />
     </RelativeLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Módulo B2B para distribuidores y almacenes mayoristas"
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-        android:background="@color/border_light" />
-
+    <!-- Nota de modo actual -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFDF7"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_paper_card_active"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="14dp">
 
         <TextView
+            style="@style/Pv.Headline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ℹ️ Modo Comprador Bodega Activo"
-            android:textColor="@color/gold_dark"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textColor="@color/gilt_dark"
+            android:text="Modo comprador (bodega) activo" />
 
         <TextView
+            style="@style/Pv.Body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Actualmente estás usando la vista para Bodegas y Tiendas que cotizan, comparan y se abastecen al mejor precio con flete calculado."
-            android:textColor="@color/text_primary"
-            android:textSize="12sp" />
+            android:textColor="@color/ink"
+            android:text="Estás cotizando, comparando y abasteciendo tu bodega al mejor precio con el flete calculado." />
     </LinearLayout>
 
     <TextView
+        style="@style/Pv.Overline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="¿Qué incluirá el Portal Proveedor Mayorista?"
-        android:textColor="@color/navy_primary"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:layout_marginTop="18dp"
+        android:text="Lo que incluirá el portal proveedor" />
 
     <TextView
+        style="@style/Pv.Body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:text="• Publicar precios mayoristas en sacos, fardos y packs.\n• Configurar tu almacén en Moshoqueque, Chiclayo, Lambayeque o La Victoria.\n• Gestionar tus tarifas de flete y montos mínimos de envío gratis.\n• Recibir y despachar órdenes directamente a tu WhatsApp."
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp" />
+        android:lineSpacingExtra="3dp"
+        android:text="•  Publicar precios mayoristas en sacos, fardos y packs.\n•  Configurar tu almacén en Moshoqueque, Chiclayo, Lambayeque o La Victoria.\n•  Gestionar tarifas de flete y montos de envío gratis.\n•  Recibir y despachar pedidos directamente a tu WhatsApp." />
 
-    <LinearLayout
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinueAsBuyer"
+        style="@style/Widget.Material3.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/btnContinueAsBuyer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_gold_button"
-            android:gravity="center"
-            android:paddingTop="11dp"
-            android:paddingBottom="11dp"
-            android:text="Continuar comprando para mi Bodega"
-            android:textColor="@color/navy_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+        android:layout_marginTop="20dp"
+        android:minHeight="50dp"
+        android:text="Continuar comprando para mi bodega"
+        android:textColor="@color/paper_on_ink"
+        app:backgroundTint="@color/ink"
+        app:cornerRadius="12dp" />
 
 </LinearLayout>

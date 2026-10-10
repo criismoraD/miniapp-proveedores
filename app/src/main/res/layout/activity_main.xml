@@ -1,493 +1,327 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_canvas">
+    android:background="@drawable/bg_paper"
+    android:fitsSystemWindows="true">
 
-    <!-- Top Navy Header & Fixed Controls -->
+    <!-- ===== Portada (masthead) + controles fijos ===== -->
     <LinearLayout
         android:id="@+id/llHeaderContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingStart="18dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="18dp">
 
-        <!-- Navy Corporate Bar -->
-        <LinearLayout
-            android:id="@+id/headerNavy"
+        <!-- Línea de fecha y selector de rol -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_header_navy"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="36dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="16dp">
-
-            <!-- Brand Row & Role Switcher -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="PROVEE"
-                            android:textColor="@color/gold_primary"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:text="CHICLAYO"
-                            android:textColor="@color/white"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_gold_badge"
-                            android:paddingStart="7dp"
-                            android:paddingTop="3dp"
-                            android:paddingEnd="7dp"
-                            android:paddingBottom="3dp"
-                            android:text="B2B"
-                            android:textColor="@color/gold_dark"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Red Mayorista • Chiclayo &amp; Lambayeque"
-                        android:textColor="#E2E8F0"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <!-- Role Switcher Pill -->
-                <LinearLayout
-                    android:id="@+id/btnRoleToggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/bg_role_pill"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="12dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="7dp">
-
-                    <TextView
-                        android:id="@+id/tvRoleLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="👤 Bodega"
-                        android:textColor="@color/gold_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="▾"
-                        android:textColor="@color/gold_accent"
-                        android:textSize="13sp" />
-                </LinearLayout>
-            </RelativeLayout>
-
-            <!-- Location Selector & Map Button Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <!-- Location Selector Bar -->
-                <LinearLayout
-                    android:id="@+id/btnLocationPicker"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_location_pill"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="12dp"
-                    android:paddingTop="9dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="9dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📍"
-                        android:textSize="18sp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Mi Bodega en:"
-                            android:textColor="#CBD5E1"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tvSelectedLocation"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:maxLines="1"
-                            android:text="Chiclayo - Moshoqueque (JLO)"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="▾"
-                        android:textColor="@color/gold_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Interactive Map Button -->
-                <LinearLayout
-                    android:id="@+id/btnOpenMap"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_gold_button"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingStart="12dp"
-                    android:paddingTop="9dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="9dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🗺️"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="Mapa"
-                        android:textColor="@color/navy_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Search Input -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_search_box"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="14dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🔍"
-                    android:textSize="16sp" />
-
-                <EditText
-                    android:id="@+id/etSearch"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:hint="Buscar Sporade, Arroz, Aceite, Leche..."
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_muted"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/btnClearSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="6dp"
-                    android:text="✕"
-                    android:textColor="@color/text_muted"
-                    android:textSize="16sp"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- Category Horizontal Filter Bar -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:overScrollMode="never"
-            android:paddingStart="14dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="14dp"
-            android:paddingBottom="10dp"
-            android:scrollbars="none">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/chipCatAll"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_chip_selected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingStart="14dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="7dp"
-                    android:text="🔥 Todos"
-                    android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/chipCatDrinks"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingStart="14dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="7dp"
-                    android:text="⚡ Bebidas"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/chipCatGroceries"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingStart="14dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="7dp"
-                    android:text="🌾 Abarrotes"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/chipCatSweets"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingStart="14dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="7dp"
-                    android:text="🍪 Golosinas"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/chipCatCleaning"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:paddingStart="14dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="7dp"
-                    android:text="🧼 Limpieza"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-            </LinearLayout>
-        </HorizontalScrollView>
-
-        <!-- Sorting & Comparison Filter Bar -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#F8FAFC"
-            android:orientation="vertical"
-            android:paddingStart="14dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="14dp"
-            android:paddingBottom="8dp">
+            android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/tvSortTitle"
+                android:id="@+id/tvMastheadDate"
+                style="@style/Pv.Overline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:text="Comparar proveedores por:"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="Edición de hoy" />
 
-            <HorizontalScrollView
-                android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRoleToggle"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                android:scrollbars="none">
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:minHeight="36dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="2dp"
+                android:text="Bodega"
+                android:textColor="@color/ink"
+                android:textSize="13sp"
+                app:icon="@drawable/ic_arrow_drop_down"
+                app:iconGravity="textEnd"
+                app:iconTint="@color/gilt"
+                app:iconPadding="0dp" />
+        </RelativeLayout>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+        <!-- Nombre de la publicación -->
+        <TextView
+            android:id="@+id/tvBrand"
+            style="@style/Pv.Masthead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="ProveeChiclayo" />
 
-                    <!-- Más conveniente (Default: Precio + Flete) -->
-                    <TextView
-                        android:id="@+id/chipSortConvenient"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chip_selected"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:paddingStart="12dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="12dp"
-                        android:paddingBottom="6dp"
-                        android:text="🌟 Más Conveniente (Total)"
-                        android:textColor="@color/white"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+        <TextView
+            style="@style/Pv.Overline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center"
+            android:text="Red mayorista · Chiclayo y Lambayeque" />
 
-                    <!-- Menor Precio del producto -->
-                    <TextView
-                        android:id="@+id/chipSortPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:paddingStart="12dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="12dp"
-                        android:paddingBottom="6dp"
-                        android:text="💰 Menor Precio"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <!-- Más Cercano en distancia km -->
-                    <TextView
-                        android:id="@+id/chipSortDistance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:paddingStart="12dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="12dp"
-                        android:paddingBottom="6dp"
-                        android:text="📍 Más Cercano"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <!-- Menor Delivery / Flete -->
-                    <TextView
-                        android:id="@+id/chipSortDelivery"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:paddingStart="12dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="12dp"
-                        android:paddingBottom="6dp"
-                        android:text="🚚 Menor Flete"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </HorizontalScrollView>
-        </LinearLayout>
+        <!-- Doble filete tipográfico -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/ink" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/border_light" />
+            android:layout_marginTop="3dp"
+            android:background="@color/ink" />
+
+        <!-- Ubicación de la bodega + mapa -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/btnLocationPicker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_field_paper"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="9dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="9dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_place"
+                    app:tint="@color/gilt" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/Pv.Overline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mi bodega en" />
+
+                    <TextView
+                        android:id="@+id/tvSelectedLocation"
+                        style="@style/Pv.Headline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textSize="15sp"
+                        android:text="Chiclayo - Moshoqueque (JLO)" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_arrow_drop_down"
+                    app:tint="@color/ink_muted" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenMap"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:minHeight="48dp"
+                android:text="Mapa"
+                android:textColor="@color/ink"
+                app:cornerRadius="10dp"
+                app:icon="@drawable/ic_map"
+                app:iconTint="@color/ink"
+                app:strokeColor="@color/rule_strong" />
+        </LinearLayout>
+
+        <!-- Búsqueda: campo de tinta con borde fino -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilSearch"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Buscar sporade, arroz, aceite, leche…"
+            app:boxBackgroundColor="@color/paper_surface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/rule_strong"
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/ink_muted"
+            app:hintTextColor="@color/ink_muted"
+            app:startIconDrawable="@drawable/ic_search"
+            app:startIconTint="@color/ink_muted">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/ink"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Categorías -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgCategories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="8dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCatAll"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Todos" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCatDrinks"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bebidas" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCatGroceries"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Abarrotes" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCatSweets"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Golosinas" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCatCleaning"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Limpieza" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <!-- Criterio de comparación -->
+        <TextView
+            style="@style/Pv.Overline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Comparar proveedores por" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgSort"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="8dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSortConvenient"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Más conveniente" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSortPrice"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Menor precio" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSortDistance"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Más cercano" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSortDelivery"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Menor flete" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/rule" />
     </LinearLayout>
 
-    <!-- Scrollable Products Feed -->
+    <!-- ===== Listado de productos (hojas) ===== -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvProducts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/llHeaderContainer"
         android:clipToPadding="false"
-        android:paddingStart="10dp"
+        android:layoutAnimation="@anim/layout_paper_fall"
+        android:overScrollMode="ifContentScrolls"
+        android:paddingStart="12dp"
         android:paddingTop="6dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="90dp" />
+        android:paddingEnd="12dp"
+        android:paddingBottom="110dp" />
 
-    <!-- Empty State -->
+    <!-- ===== Estado vacío ===== -->
     <LinearLayout
         android:id="@+id/llEmptyState"
         android:layout_width="match_parent"
@@ -498,56 +332,56 @@
         android:padding="32dp"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📦"
-            android:textSize="48sp" />
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_inventory"
+            app:tint="@color/ink_muted" />
 
         <TextView
+            style="@style/Pv.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="No encontramos ese producto"
-            android:textColor="@color/text_primary"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="14dp"
+            android:text="Sin coincidencias" />
 
         <TextView
+            style="@style/Pv.Body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Prueba con otro término como 'Sporade', 'Arroz', 'Leche' o cambia de categoría."
-            android:textAlignment="center"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
+            android:gravity="center"
+            android:text="Prueba con otro término, como «Sporade», «Arroz» o «Leche», o cambia de categoría." />
     </LinearLayout>
 
-    <!-- Bottom Floating Cart Bar (Rappi / PedidosYa Style) -->
-    <androidx.cardview.widget.CardView
+    <!-- ===== Barra de pedido flotante (tinta) ===== -->
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardCartBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginBottom="14dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
         android:visibility="gone"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="10dp">
+        app:cardBackgroundColor="@color/ink"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp">
 
         <LinearLayout
             android:id="@+id/layoutCartBarContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_cart_bar"
+            android:background="@drawable/bg_cart_ink"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="16dp"
+            android:paddingStart="18dp"
             android:paddingTop="12dp"
-            android:paddingEnd="16dp"
+            android:paddingEnd="12dp"
             android:paddingBottom="12dp">
 
             <LinearLayout
@@ -558,37 +392,35 @@
 
                 <TextView
                     android:id="@+id/tvCartSummaryCountAndTotal"
+                    style="@style/Pv.Title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🛒 1 ítem • S/ 27.00"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/paper_on_ink"
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/tvCartSummarySubtitle"
+                    style="@style/Pv.Caption"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Incluye flete calculado a tu bodega"
-                    android:textColor="@color/gold_primary"
+                    android:layout_marginTop="1dp"
+                    android:textColor="@color/gilt"
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOpenCart"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_gold_button"
-                android:paddingStart="16dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="10dp"
-                android:text="Ver Pedido ➔"
-                android:textColor="@color/navy_primary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:text="Ver pedido"
+                android:textColor="@color/ink"
+                app:backgroundTint="@color/paper_surface"
+                app:cornerRadius="10dp"
+                app:icon="@drawable/ic_arrow_forward"
+                app:iconGravity="textEnd"
+                app:iconTint="@color/ink" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </RelativeLayout>

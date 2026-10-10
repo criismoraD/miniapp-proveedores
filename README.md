@@ -40,8 +40,23 @@ Aplicación móvil Android para abastecimiento mayorista de bodegas y tiendas de
 
 ---
 
+## 🗞️ Diseño: "Papel y Tinta"
+
+La interfaz se inspira en una hoja impresa: fondo de papel crema con fibra sutil, tinta azul-negra para el texto, filetes finos y dorado de imprenta para los acentos.
+
+- **Paleta semántica** (`res/values/colors.xml`): `paper_*` (papel), `ink*` (tinta), `gilt*` (dorado), `stamp` (sello rojo), `sage` (verde musgo para ahorro y envío gratis). Existe una variante nocturna en `res/values-night/`.
+- **Tipografía:** EB Garamond (titulares, precios y nombres) con subconjunto latino y pesos estáticos en `res/font/`. Licencia SIL Open Font License en `docs/licenses/EBGaramond_OFL.txt`. El texto de datos usa la sans del sistema.
+- **Componentes Material 3:** `MaterialCardView`, `MaterialButton`, `Chip`/`ChipGroup` de selección única, `TextInputLayout` con botón de borrado, `BottomSheetDialog` para las hojas, `Snackbar` para avisos.
+- **Animaciones** (`ui/Motion.java` y `res/anim/`):
+  - Portada: el nombre se revela como una máquina de escribir y la cabecera se desliza al abrir.
+  - Listado: las hojas de producto entran en cascada y vuelven a entrar al cambiar categoría u orden.
+  - Pulsación: cada tarjeta y bloque se hunde ligeramente y rebota al soltar.
+  - Sello: al añadir un producto aparece un sello "AÑADIDO" que cae, se asienta girado y se desvanece.
+  - Barra de pedido: sube desde abajo, rebota al cambiar el total y baja al vaciarse.
+  - Hojas y diálogos: entrada escalonada de ofertas y líneas de pedido; el mapa aparece con fundido y escala.
+
 ## 🛠️ Tecnologías Utilizadas
 - **Lenguaje:** Java 11
 - **Plataforma:** Android Nativo (SDK 24 - 34+)
-- **UI:** Material Design 3, CardView, RecyclerView, WebView (Leaflet OSM)
+- **UI:** Material Design 3 (Material Components 1.10), RecyclerView, WebView (Leaflet OSM), animaciones de View y ViewPropertyAnimator
 - **Logística:** Haversine Distance Algorithm

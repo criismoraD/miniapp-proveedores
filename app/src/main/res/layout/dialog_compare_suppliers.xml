@@ -3,14 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_rounded_sheet"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="20dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="24dp">
 
-    <!-- Header Row: Real Image + Product Info + Close -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_sheet_handle" />
+
+    <!-- Cabecera: lámina + producto + cerrar -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -20,21 +29,23 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- Rounded Real Product Image -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                app:cardCornerRadius="12dp"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                app:cardBackgroundColor="@color/paper_deep"
+                app:cardCornerRadius="4dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#F8FAFC">
+                app:strokeColor="@color/rule_strong"
+                app:strokeWidth="0.5dp">
 
                 <ImageView
                     android:id="@+id/ivCompareProductImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:contentDescription="@null"
                     android:scaleType="centerCrop"
                     android:src="@drawable/img_sporade" />
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -44,81 +55,80 @@
 
                 <TextView
                     android:id="@+id/tvCompareProductName"
+                    style="@style/Pv.Title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sporade 500ml"
-                    android:textColor="@color/navy_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:text="Sporade 500ml" />
 
                 <TextView
                     android:id="@+id/tvCompareProductMeta"
+                    style="@style/Pv.Italic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Pack x 12 botellas • AJE"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:text="Pack x 12 botellas • AJE" />
             </LinearLayout>
         </LinearLayout>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCompareClose"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/bg_circle_icon"
-            android:gravity="center"
-            android:text="✕"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:contentDescription="Cerrar"
+            app:icon="@drawable/ic_close"
+            app:iconTint="@color/ink_muted" />
     </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="10dp"
-        android:background="@color/border_light" />
+        android:background="@color/rule" />
 
-    <!-- Bodega Location Banner -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_pill_gray"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📍"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tvCompareDestination"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="Cotizando fletes a: Chiclayo - Moshoqueque (JLO)"
-            android:textColor="@color/text_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Quantity Stepper Row -->
+    <!-- Destino del flete -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:background="#FFFBEB"
+        android:background="@drawable/bg_pill_rule"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="10dp">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_place"
+            app:tint="@color/gilt" />
+
+        <TextView
+            android:id="@+id/tvCompareDestination"
+            style="@style/Pv.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:textColor="@color/ink"
+            android:textSize="13sp"
+            android:text="Cotizando fletes a: Chiclayo - Moshoqueque (JLO)" />
+    </LinearLayout>
+
+    <!-- Cantidad a cotizar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_paper_card_active"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="10dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -127,79 +137,60 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/Pv.Overline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cantidad a cotizar:"
-                android:textColor="@color/gold_dark"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textColor="@color/gilt_dark"
+                android:text="Cantidad a cotizar" />
 
             <TextView
+                style="@style/Pv.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Aumenta para ver si alcanzas Envío Gratis"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:text="Sube la cantidad para alcanzar el envío gratis" />
         </LinearLayout>
 
-        <!-- Stepper Controls -->
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnQtyMinus"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="Restar"
+            app:icon="@drawable/ic_remove"
+            app:iconTint="@color/ink" />
+
+        <TextView
+            android:id="@+id/tvCompareQuantity"
+            style="@style/Pv.Price"
+            android:layout_width="40dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:gravity="center"
+            android:text="1" />
 
-            <TextView
-                android:id="@+id/btnQtyMinus"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_chip_unselected"
-                android:gravity="center"
-                android:text="-"
-                android:textColor="@color/navy_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvCompareQuantity"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="1"
-                android:textColor="@color/navy_primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btnQtyPlus"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_gold_button"
-                android:gravity="center"
-                android:text="+"
-                android:textColor="@color/navy_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnQtyPlus"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="Sumar"
+            app:backgroundTint="@color/ink"
+            app:icon="@drawable/ic_add"
+            app:iconTint="@color/paper_on_ink" />
     </LinearLayout>
 
-    <!-- Subtitle -->
     <TextView
+        style="@style/Pv.Overline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:layout_marginBottom="8dp"
-        android:text="Mayoristas disponibles ordenados por conveniencia:"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="6dp"
+        android:text="Mayoristas ordenados por conveniencia" />
 
-    <!-- Container for dynamic supplier comparison rows -->
+    <!-- Ofertas comparadas -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="440dp">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/llSuppliersListContainer"

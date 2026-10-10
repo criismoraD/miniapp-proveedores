@@ -12,21 +12,27 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.DecelerateInterpolator;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
 
 import com.example.provedoreschiclayo.adapters.ProductAdapter;
 import com.example.provedoreschiclayo.data.DataRepository;
@@ -35,11 +41,14 @@ import com.example.provedoreschiclayo.models.DistrictLocation;
 import com.example.provedoreschiclayo.models.Product;
 import com.example.provedoreschiclayo.models.Supplier;
 import com.example.provedoreschiclayo.models.SupplierOffer;
+import com.example.provedoreschiclayo.ui.Motion;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -60,29 +69,33 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     private String selectedSort = "convenient"; // "convenient", "price", "distance", "delivery"
     private String currentSearchQuery = "";
 
-    // Vistas Principales
+    // Cabecera (portada)
+    private TextView tvMastheadDate;
+    private TextView tvBrand;
     private TextView tvSelectedLocation;
-    private LinearLayout btnLocationPicker;
-    private LinearLayout btnOpenMap;
-    private LinearLayout btnRoleToggle;
-    private TextView tvRoleLabel;
+    private View btnLocationPicker;
+    private View btnOpenMap;
+    private MaterialButton btnRoleToggle;
 
-    private EditText etSearch;
-    private TextView btnClearSearch;
+    // Búsqueda y filtros
+    private TextInputEditText etSearch;
+    private ChipGroup cgCategories;
+    private ChipGroup cgSort;
+    private Chip chipCatAll, chipCatDrinks, chipCatGroceries, chipCatSweets, chipCatCleaning;
+    private Chip chipSortConvenient, chipSortPrice, chipSortDistance, chipSortDelivery;
 
-    private TextView chipCatAll, chipCatDrinks, chipCatGroceries, chipCatSweets, chipCatCleaning;
-    private TextView chipSortConvenient, chipSortPrice, chipSortDistance, chipSortDelivery;
-
+    // Listado
     private RecyclerView rvProducts;
     private ProductAdapter productAdapter;
-    private LinearLayout llEmptyState;
+    private View llEmptyState;
 
-    // Barra flotante de Carrito
-    private CardView cardCartBar;
-    private LinearLayout layoutCartBarContent;
+    // Barra flotante de pedido
+    private MaterialCardView cardCartBar;
+    private View layoutCartBarContent;
     private TextView tvCartSummaryCountAndTotal;
     private TextView tvCartSummarySubtitle;
-    private TextView btnOpenCart;
+    private MaterialButton btnOpenCart;
+    private int lastCartUnits = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +105,12 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
         initData();
         initViews();
         setupEvents();
-        refreshProductList();
+        refreshProductList(true);
         updateCartBar();
+
+        if (savedInstanceState == null) {
+            playEntranceAnimations();
+        }
     }
 
     private void initData() {
@@ -104,21 +121,23 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     }
 
     private void initViews() {
+        tvMastheadDate = findViewById(R.id.tvMastheadDate);
+        tvBrand = findViewById(R.id.tvBrand);
         tvSelectedLocation = findViewById(R.id.tvSelectedLocation);
         btnLocationPicker = findViewById(R.id.btnLocationPicker);
         btnOpenMap = findViewById(R.id.btnOpenMap);
         btnRoleToggle = findViewById(R.id.btnRoleToggle);
-        tvRoleLabel = findViewById(R.id.tvRoleLabel);
 
         etSearch = findViewById(R.id.etSearch);
-        btnClearSearch = findViewById(R.id.btnClearSearch);
 
+        cgCategories = findViewById(R.id.cgCategories);
         chipCatAll = findViewById(R.id.chipCatAll);
         chipCatDrinks = findViewById(R.id.chipCatDrinks);
         chipCatGroceries = findViewById(R.id.chipCatGroceries);
         chipCatSweets = findViewById(R.id.chipCatSweets);
         chipCatCleaning = findViewById(R.id.chipCatCleaning);
 
+        cgSort = findViewById(R.id.cgSort);
         chipSortConvenient = findViewById(R.id.chipSortConvenient);
         chipSortPrice = findViewById(R.id.chipSortPrice);
         chipSortDistance = findViewById(R.id.chipSortDistance);
@@ -135,84 +154,110 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         tvSelectedLocation.setText(currentLocation.name);
 
+        // Fecha de "edición" del día, en español
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE d 'de' MMMM", Locale.forLanguageTag("es-PE"));
+        String today = dateFormat.format(new Date());
+        tvMastheadDate.setText(today.substring(0, 1).toUpperCase(Locale.ROOT) + today.substring(1));
+
         rvProducts.setLayoutManager(new LinearLayoutManager(this));
+        DefaultItemAnimator itemAnimator = new DefaultItemAnimator();
+        itemAnimator.setAddDuration(260);
+        itemAnimator.setRemoveDuration(180);
+        itemAnimator.setMoveDuration(260);
+        itemAnimator.setChangeDuration(200);
+        rvProducts.setItemAnimator(itemAnimator);
+
         productAdapter = new ProductAdapter(this, currentLocation, this);
         rvProducts.setAdapter(productAdapter);
     }
 
     private void setupEvents() {
-        // Selector de ubicación de Bodega
+        // Selector de ubicación de bodega
+        Motion.pressScale(btnLocationPicker);
         btnLocationPicker.setOnClickListener(v -> showLocationPickerDialog());
 
-        // Botón para ver el Mapa interactivo de Chiclayo
+        // Mapa interactivo de Chiclayo
+        Motion.pressScale(btnOpenMap);
         btnOpenMap.setOnClickListener(v -> showSuppliersMapDialog());
 
-        // Selector / Indicador de Modo (Bodeguero / Proveedor)
+        // Modo (Bodeguero / Proveedor)
         btnRoleToggle.setOnClickListener(v -> showWholesalerModeDialog());
 
-        // Búsqueda en tiempo real
+        // Búsqueda en tiempo real (sin animación de entrada para no distraer al escribir)
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentSearchQuery = s != null ? s.toString().trim().toLowerCase() : "";
-                btnClearSearch.setVisibility(currentSearchQuery.isEmpty() ? View.GONE : View.VISIBLE);
-                refreshProductList();
+                currentSearchQuery = s != null ? s.toString().trim().toLowerCase(Locale.ROOT) : "";
+                refreshProductList(false);
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
 
-        btnClearSearch.setOnClickListener(v -> {
-            etSearch.setText("");
-            currentSearchQuery = "";
-            btnClearSearch.setVisibility(View.GONE);
-            refreshProductList();
+        // Categorías (selección única)
+        cgCategories.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            int id = checkedIds.get(0);
+            Motion.popBump(group.findViewById(id));
+            if (id == R.id.chipCatDrinks) {
+                selectedCategory = "Bebidas";
+            } else if (id == R.id.chipCatGroceries) {
+                selectedCategory = "Abarrotes";
+            } else if (id == R.id.chipCatSweets) {
+                selectedCategory = "Golosinas";
+            } else if (id == R.id.chipCatCleaning) {
+                selectedCategory = "Limpieza";
+            } else {
+                selectedCategory = "ALL";
+            }
+            refreshProductList(true);
         });
 
-        // Filtros de Categoría
-        chipCatAll.setOnClickListener(v -> selectCategory("ALL", chipCatAll));
-        chipCatDrinks.setOnClickListener(v -> selectCategory("Bebidas", chipCatDrinks));
-        chipCatGroceries.setOnClickListener(v -> selectCategory("Abarrotes", chipCatGroceries));
-        chipCatSweets.setOnClickListener(v -> selectCategory("Golosinas", chipCatSweets));
-        chipCatCleaning.setOnClickListener(v -> selectCategory("Limpieza", chipCatCleaning));
+        // Criterio de comparación (selección única)
+        cgSort.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            int id = checkedIds.get(0);
+            Motion.popBump(group.findViewById(id));
+            if (id == R.id.chipSortPrice) {
+                selectSort("price");
+            } else if (id == R.id.chipSortDistance) {
+                selectSort("distance");
+            } else if (id == R.id.chipSortDelivery) {
+                selectSort("delivery");
+            } else {
+                selectSort("convenient");
+            }
+        });
 
-        // Filtros de Comparación y Ordenamiento
-        chipSortConvenient.setOnClickListener(v -> selectSort("convenient", chipSortConvenient));
-        chipSortPrice.setOnClickListener(v -> selectSort("price", chipSortPrice));
-        chipSortDistance.setOnClickListener(v -> selectSort("distance", chipSortDistance));
-        chipSortDelivery.setOnClickListener(v -> selectSort("delivery", chipSortDelivery));
-
-        // Click en la barra de carrito
+        // Barra de pedido
+        Motion.pressScale(layoutCartBarContent);
         layoutCartBarContent.setOnClickListener(v -> showCartDialog());
         btnOpenCart.setOnClickListener(v -> showCartDialog());
     }
 
-    private void selectCategory(String category, TextView selectedChip) {
-        this.selectedCategory = category;
-        resetCategoryChipsStyle();
-        selectedChip.setBackgroundResource(R.drawable.bg_chip_selected);
-        selectedChip.setTextColor(Color.WHITE);
-        refreshProductList();
+    /** Entrada de la portada: máquina de escribir en el nombre y fundido de la cabecera. */
+    private void playEntranceAnimations() {
+        Motion.typewriter(tvBrand, "ProveeChiclayo", 900);
+
+        View header = findViewById(R.id.llHeaderContainer);
+        header.setAlpha(0f);
+        header.setTranslationY(-Motion.dp(header, 10f));
+        header.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setStartDelay(80)
+                .setDuration(520)
+                .setInterpolator(new DecelerateInterpolator(1.5f))
+                .start();
     }
 
-    private void resetCategoryChipsStyle() {
-        TextView[] chips = {chipCatAll, chipCatDrinks, chipCatGroceries, chipCatSweets, chipCatCleaning};
-        for (TextView chip : chips) {
-            chip.setBackgroundResource(R.drawable.bg_chip_unselected);
-            chip.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
-        }
-    }
-
-    private void selectSort(String sort, TextView selectedChip) {
+    private void selectSort(String sort) {
         this.selectedSort = sort;
-        resetSortChipsStyle();
-        selectedChip.setBackgroundResource(R.drawable.bg_chip_selected);
-        selectedChip.setTextColor(Color.WHITE);
-        refreshProductList();
+        refreshProductList(true);
 
         String feedback;
         switch (sort) {
@@ -226,29 +271,34 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
                 feedback = "Ordenado por menor flete de envío";
                 break;
             default:
-                feedback = "🌟 Ordenado por Mayor Conveniencia (Costo Total: Producto + Flete)";
+                feedback = "Ordenado por mayor conveniencia (producto + flete)";
                 break;
         }
-        Toast.makeText(this, feedback, Toast.LENGTH_SHORT).show();
+        showMessage(feedback);
     }
 
-    private void resetSortChipsStyle() {
-        TextView[] chips = {chipSortConvenient, chipSortPrice, chipSortDistance, chipSortDelivery};
-        for (TextView chip : chips) {
-            chip.setBackgroundResource(R.drawable.bg_chip_unselected);
-            chip.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+    /** Muestra avisos con Snackbar de Material, por encima de la barra de pedido si está visible. */
+    private void showMessage(CharSequence message) {
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.main), message, Snackbar.LENGTH_SHORT);
+        if (cardCartBar.getVisibility() == View.VISIBLE) {
+            snackbar.setAnchorView(cardCartBar);
         }
+        snackbar.show();
     }
 
-    private void refreshProductList() {
+    /**
+     * Recalcula y muestra la lista de productos.
+     * @param animateEntrance true para re-escalonar la entrada de las hojas (cambio de filtro u orden).
+     */
+    private void refreshProductList(boolean animateEntrance) {
         filteredProducts.clear();
 
         for (Product p : allProducts) {
             boolean matchesCat = "ALL".equalsIgnoreCase(selectedCategory) || p.category.equalsIgnoreCase(selectedCategory);
             boolean matchesSearch = currentSearchQuery.isEmpty()
-                    || p.name.toLowerCase().contains(currentSearchQuery)
-                    || p.brand.toLowerCase().contains(currentSearchQuery)
-                    || p.category.toLowerCase().contains(currentSearchQuery);
+                    || p.name.toLowerCase(Locale.ROOT).contains(currentSearchQuery)
+                    || p.brand.toLowerCase(Locale.ROOT).contains(currentSearchQuery)
+                    || p.category.toLowerCase(Locale.ROOT).contains(currentSearchQuery);
 
             if (matchesCat && matchesSearch) {
                 filteredProducts.add(p);
@@ -272,22 +322,28 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
                 double f2 = o2.supplier.calculateDeliveryFee(currentLocation, o2.price);
                 return Double.compare(f1, f2);
             } else {
-                // Conveniente: Total costo para 1 unidad
+                // Conveniente: costo total para 1 unidad
                 double t1 = o1.calculateTotalCost(currentLocation, 1);
                 double t2 = o2.calculateTotalCost(currentLocation, 1);
                 return Double.compare(t1, t2);
             }
         });
 
-        if (filteredProducts.isEmpty()) {
+        boolean isEmpty = filteredProducts.isEmpty();
+        if (isEmpty) {
             rvProducts.setVisibility(View.GONE);
-            llEmptyState.setVisibility(View.VISIBLE);
+            if (llEmptyState.getVisibility() != View.VISIBLE) {
+                Motion.fadeRiseIn(llEmptyState);
+            }
         } else {
-            rvProducts.setVisibility(View.VISIBLE);
             llEmptyState.setVisibility(View.GONE);
+            rvProducts.setVisibility(View.VISIBLE);
         }
 
         productAdapter.updateData(filteredProducts, currentLocation, selectedSort);
+        if (animateEntrance && !isEmpty) {
+            rvProducts.scheduleLayoutAnimation();
+        }
     }
 
     private SupplierOffer getOfferForSort(Product product) {
@@ -326,16 +382,17 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
                     (int) (getResources().getDisplayMetrics().widthPixels * 0.96),
                     (int) (getResources().getDisplayMetrics().heightPixels * 0.88)
             );
+            dialog.getWindow().setWindowAnimations(R.style.Anim_ProvedoresChiclayo_Dialog);
         }
 
-        TextView btnClose = dialog.findViewById(R.id.btnMapClose);
+        MaterialButton btnClose = dialog.findViewById(R.id.btnMapClose);
         TextView tvBodegaSub = dialog.findViewById(R.id.tvMapBodegaSubtitle);
         final WebView wvMap = dialog.findViewById(R.id.wvMap);
         final TextView tvSupName = dialog.findViewById(R.id.tvMapSelectedSupplierName);
         final TextView tvSupDist = dialog.findViewById(R.id.tvMapSelectedSupplierDistance);
         final TextView tvSupDetails = dialog.findViewById(R.id.tvMapSelectedSupplierDetails);
 
-        tvBodegaSub.setText("📍 Tu Bodega en: " + currentLocation.name);
+        tvBodegaSub.setText("Tu bodega en: " + currentLocation.name);
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         wvMap.getSettings().setJavaScriptEnabled(true);
@@ -343,20 +400,21 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
         wvMap.setWebChromeClient(new WebChromeClient());
         wvMap.setWebViewClient(new WebViewClient());
 
-        // Interface para recibir clicks de marcadores en Android
+        // Puente JavaScript -> Android para los clics en marcadores
         class MapInterface {
             @JavascriptInterface
             public void onSupplierClicked(final String name, final String district, final String address, final double dist, final double flete, final String time) {
                 runOnUiThread(() -> {
-                    tvSupName.setText("🏢 " + name);
-                    tvSupDist.setText(String.format(Locale.US, "📍 %.1f km", dist));
-                    tvSupDetails.setText(String.format(Locale.US, "%s (%s) • Flete: S/ %.2f • ⏱️ %s", address, district, flete, time));
+                    Motion.fadeSwapText(tvSupName, name);
+                    Motion.fadeSwapText(tvSupDist, String.format(Locale.US, "%.1f km", dist));
+                    Motion.fadeSwapText(tvSupDetails, String.format(Locale.US,
+                            "%s (%s) · Flete: S/ %.2f · %s", address, district, flete, time));
                 });
             }
         }
         wvMap.addJavascriptInterface(new MapInterface(), "AndroidMap");
 
-        // Construir HTML del mapa interactivo con Leaflet y soporte offline Canvas
+        // Construir HTML del mapa con Leaflet
         StringBuilder jsSuppliers = new StringBuilder("[");
         for (int i = 0; i < suppliers.size(); i++) {
             Supplier s = suppliers.get(i);
@@ -375,12 +433,14 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
                 + "<link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'/>"
                 + "<script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script>"
                 + "<style>"
-                + "  html, body { height: 100%; margin: 0; padding: 0; background: #0A192F; font-family: -apple-system, sans-serif; }"
+                + "  html, body { height: 100%; margin: 0; padding: 0; background: #F2ECDF; font-family: Georgia, serif; }"
                 + "  #map { height: 100%; width: 100%; }"
-                + "  .leaflet-popup-content-wrapper { border-radius: 14px; border: 2px solid #D4AF37; box-shadow: 0 6px 16px rgba(0,0,0,0.3); padding: 4px; }"
-                + "  .bodega-marker { background: #D4AF37; border: 3px solid #0A192F; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 14px #D4AF37; animation: pulse 2s infinite; }"
-                + "  .sup-marker { background: #0A192F; border: 2px solid #D4AF37; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); }"
-                + "  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }"
+                + "  .leaflet-tile-pane { filter: sepia(0.30) saturate(0.82) contrast(0.96); }"
+                + "  .leaflet-popup-content-wrapper { border-radius: 6px; border: 1px solid #9C917A; box-shadow: 0 4px 14px rgba(30,35,49,0.18); background: #FBF8F1; }"
+                + "  .leaflet-popup-tip { background: #FBF8F1; }"
+                + "  .bodega-marker { background: #A8803B; border: 3px solid #1E2331; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 0 4px rgba(168,128,59,0.25); animation: pulse 2.4s ease-in-out infinite; }"
+                + "  .sup-marker { background: #1E2331; border: 2px solid #A8803B; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 3px 7px rgba(30,35,49,0.35); }"
+                + "  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }"
                 + "</style>"
                 + "</head><body>"
                 + "<div id='map'></div>"
@@ -394,28 +454,28 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
                 + "      maxZoom: 18,"
                 + "      attribution: 'Chiclayo Mayorista'"
                 + "    }).addTo(map);"
-                + "    var bodegaIcon = L.divIcon({ className: 'custom-icon', html: '<div class=\"bodega-marker\">🏪</div>', iconSize: [34, 34], iconAnchor: [17, 17] });"
+                + "    var bodegaIcon = L.divIcon({ className: 'custom-icon', html: '<div class=\\\"bodega-marker\\\">&#9632;</div>', iconSize: [34, 34], iconAnchor: [17, 17] });"
                 + "    var bMarker = L.marker([bodegaLat, bodegaLng], {icon: bodegaIcon}).addTo(map);"
-                + "    bMarker.bindPopup('<b style=\"color:#0A192F; font-size:14px;\">🏪 TU BODEGA</b><br/><span style=\"color:#64748B; font-size:12px;\">" + currentLocation.name + "</span>').openPopup();"
+                + "    bMarker.bindPopup('<b style=\\\"color:#1E2331; font-size:14px;\\\">TU BODEGA</b><br/><span style=\\\"color:#6E6755; font-size:12px;\\\">" + currentLocation.name + "</span>').openPopup();"
                 + "    suppliers.forEach(function(s) {"
-                + "      var supIcon = L.divIcon({ className: 'custom-icon', html: '<div class=\"sup-marker\">🏢</div>', iconSize: [30, 30], iconAnchor: [15, 15] });"
+                + "      var supIcon = L.divIcon({ className: 'custom-icon', html: '<div class=\\\"sup-marker\\\">&#9650;</div>', iconSize: [30, 30], iconAnchor: [15, 15] });"
                 + "      var m = L.marker([s.lat, s.lng], {icon: supIcon}).addTo(map);"
-                + "      var popupHtml = '<div style=\"font-size:13px; min-width:180px;\">' +"
-                + "        '<b style=\"color:#0A192F; font-size:14px;\">' + s.name + '</b><br/>' +"
-                + "        '<span style=\"color:#64748B;\">📍 ' + s.address + ' (' + s.district + ')</span><br/>' +"
-                + "        '<div style=\"margin:6px 0; padding:4px 8px; background:#FEF3C7; border-radius:6px; font-weight:bold; color:#996515;\">' + s.badge + '</div>' +"
-                + "        '<b style=\"color:#0A192F;\">📏 Distancia: </b>' + s.dist + ' km<br/>' +"
-                + "        '<b style=\"color:#059669;\">🚚 Flete: </b>S/ ' + s.flete.toFixed(2) + '<br/>' +"
-                + "        '<span style=\"color:#64748B;\">⏱️ ' + s.time + '</span>' +"
+                + "      var popupHtml = '<div style=\\\"font-size:13px; min-width:180px;\\\">' +"
+                + "        '<b style=\\\"color:#1E2331; font-size:15px;\\\">' + s.name + '</b><br/>' +"
+                + "        '<span style=\\\"color:#6E6755;\\\">' + s.address + ' (' + s.district + ')</span><br/>' +"
+                + "        '<div style=\\\"margin:6px 0; padding:3px 8px; background:#F1E6CC; border:1px solid #A8803B; border-radius:4px; font-weight:bold; color:#6B4F17;\\\">' + s.badge + '</div>' +"
+                + "        '<b style=\\\"color:#1E2331;\\\">Distancia: </b>' + s.dist + ' km<br/>' +"
+                + "        '<b style=\\\"color:#3B6A50;\\\">Flete: </b>S/ ' + s.flete.toFixed(2) + '<br/>' +"
+                + "        '<span style=\\\"color:#6E6755;\\\">' + s.time + '</span>' +"
                 + "        '</div>';"
                 + "      m.bindPopup(popupHtml);"
                 + "      m.on('click', function() {"
                 + "        if (window.AndroidMap) { window.AndroidMap.onSupplierClicked(s.name, s.district, s.address, s.dist, s.flete, s.time); }"
                 + "      });"
-                + "      L.polyline([[bodegaLat, bodegaLng], [s.lat, s.lng]], {color: '#D4AF37', weight: 2.5, dashArray: '5, 8', opacity: 0.8}).addTo(map);"
+                + "      L.polyline([[bodegaLat, bodegaLng], [s.lat, s.lng]], {color: '#A8803B', weight: 2, dashArray: '4, 7', opacity: 0.9}).addTo(map);"
                 + "    });"
                 + "  } catch(e) {"
-                + "    document.getElementById('map').innerHTML = '<div style=\"color:white; padding:20px; text-align:center;\"><h3>Radar de Chiclayo</h3><p>Modo visual activado</p></div>';"
+                + "    document.getElementById('map').innerHTML = '<div style=\\\"color:#1E2331; padding:20px; text-align:center; font-family:Georgia,serif;\\\"><h3>Mapa no disponible</h3><p>Revisa tu conexión a internet</p></div>';"
                 + "  }"
                 + "</script></body></html>";
 
@@ -425,26 +485,19 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     }
 
     // ==========================================
-    // DIÁLOGO SELECTOR DE UBICACIÓN
+    // HOJA SELECTORA DE UBICACIÓN
     // ==========================================
     private void showLocationPickerDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        final BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(R.layout.dialog_location_picker);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(
-                    (int) (getResources().getDisplayMetrics().widthPixels * 0.94),
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-        }
 
-        TextView btnClose = dialog.findViewById(R.id.btnLocationClose);
+        MaterialButton btnClose = dialog.findViewById(R.id.btnLocationClose);
         LinearLayout llContainer = dialog.findViewById(R.id.llLocationListContainer);
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         LayoutInflater inflater = LayoutInflater.from(this);
+        List<View> rows = new ArrayList<>();
         for (DistrictLocation loc : locations) {
             View itemView = inflater.inflate(R.layout.item_location_option, llContainer, false);
             TextView tvName = itemView.findViewById(R.id.tvLocationName);
@@ -456,49 +509,43 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
             boolean isCurrent = loc.id.equals(currentLocation.id);
             if (isCurrent) {
-                tvBadge.setText("✓ ACTUAL");
-                tvBadge.setBackgroundResource(R.drawable.bg_gold_badge);
-                tvBadge.setTextColor(ContextCompat.getColor(this, R.color.gold_dark));
-                itemView.setBackgroundResource(R.drawable.bg_card_highlight);
+                tvBadge.setText("ACTUAL");
+                tvBadge.setBackgroundResource(R.drawable.bg_pill_gilt);
+                tvBadge.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.gilt_dark));
+                itemView.setBackgroundResource(R.drawable.bg_paper_card_active);
             } else {
                 tvBadge.setText("Elegir");
-                tvBadge.setBackgroundResource(R.drawable.bg_pill_gray);
-                tvBadge.setTextColor(ContextCompat.getColor(this, R.color.navy_primary));
-                itemView.setBackgroundResource(R.drawable.bg_card_white);
+                tvBadge.setBackgroundResource(R.drawable.bg_pill_rule);
+                tvBadge.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.ink));
+                itemView.setBackgroundResource(R.drawable.bg_paper_card);
             }
 
             itemView.setOnClickListener(v -> {
                 currentLocation = loc;
                 tvSelectedLocation.setText(loc.name);
                 dialog.dismiss();
-                refreshProductList();
+                refreshProductList(true);
                 updateCartBar();
-                Toast.makeText(MainActivity.this, "📍 Fletes recalculados para " + loc.name, Toast.LENGTH_SHORT).show();
+                showMessage("Fletes recalculados para " + loc.name);
             });
 
             llContainer.addView(itemView);
+            rows.add(itemView);
         }
 
         dialog.show();
+        Motion.staggerIn(rows, 60);
     }
 
     // ==========================================
-    // DIÁLOGO VISTA PROVEEDOR
+    // HOJA VISTA PROVEEDOR (PRÓXIMAMENTE)
     // ==========================================
     private void showWholesalerModeDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        final BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(R.layout.dialog_wholesaler_mode);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(
-                    (int) (getResources().getDisplayMetrics().widthPixels * 0.92),
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-        }
 
-        TextView btnClose = dialog.findViewById(R.id.btnWholesalerClose);
-        TextView btnContinue = dialog.findViewById(R.id.btnContinueAsBuyer);
+        MaterialButton btnClose = dialog.findViewById(R.id.btnWholesalerClose);
+        MaterialButton btnContinue = dialog.findViewById(R.id.btnContinueAsBuyer);
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
         btnContinue.setOnClickListener(v -> dialog.dismiss());
@@ -507,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     }
 
     // ==========================================
-    // DIÁLOGO COMPARADOR DE PROVEEDORES
+    // COMPARADOR DE PROVEEDORES
     // ==========================================
     @Override
     public void onCompareSuppliers(Product product) {
@@ -517,29 +564,21 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     @Override
     public void onQuickAddToCart(Product product, SupplierOffer offer) {
         addToCart(product, offer, 1);
-        Toast.makeText(this, "✅ 1x " + product.name + " añadido de " + offer.supplier.name, Toast.LENGTH_SHORT).show();
+        showMessage("1× " + product.name + " añadido · " + offer.supplier.name);
     }
 
     private void showSupplierComparisonDialog(final Product product) {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        final BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(R.layout.dialog_compare_suppliers);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(
-                    (int) (getResources().getDisplayMetrics().widthPixels * 0.95),
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-        }
 
         ImageView ivProduct = dialog.findViewById(R.id.ivCompareProductImage);
         TextView tvName = dialog.findViewById(R.id.tvCompareProductName);
         TextView tvMeta = dialog.findViewById(R.id.tvCompareProductMeta);
         TextView tvDestination = dialog.findViewById(R.id.tvCompareDestination);
-        TextView btnClose = dialog.findViewById(R.id.btnCompareClose);
+        MaterialButton btnClose = dialog.findViewById(R.id.btnCompareClose);
         final TextView tvQuantity = dialog.findViewById(R.id.tvCompareQuantity);
-        TextView btnMinus = dialog.findViewById(R.id.btnQtyMinus);
-        TextView btnPlus = dialog.findViewById(R.id.btnQtyPlus);
+        MaterialButton btnMinus = dialog.findViewById(R.id.btnQtyMinus);
+        MaterialButton btnPlus = dialog.findViewById(R.id.btnQtyPlus);
         final LinearLayout llContainer = dialog.findViewById(R.id.llSuppliersListContainer);
 
         if (product.imageResId != 0) {
@@ -549,108 +588,18 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
         }
 
         tvName.setText(product.name);
-        tvMeta.setText(product.presentation + " • " + product.brand);
+        tvMeta.setText(product.presentation + " · " + product.brand);
         tvDestination.setText("Cotizando fletes a: " + currentLocation.name);
 
         final int[] currentQty = {1};
-
-        Runnable renderOffers = new Runnable() {
-            @Override
-            public void run() {
-                llContainer.removeAllViews();
-                LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-
-                // Encontrar la oferta más conveniente para esta cantidad específica
-                SupplierOffer bestTotalOffer = product.getMostConvenientOffer(currentLocation, currentQty[0]);
-                SupplierOffer lowestPriceOffer = product.getLowestPriceOffer();
-                SupplierOffer closestOffer = product.getClosestOffer(currentLocation);
-
-                // Copiar y ordenar ofertas por costo total con flete
-                List<SupplierOffer> sortedOffers = new ArrayList<>(product.offers);
-                Collections.sort(sortedOffers, (o1, o2) -> {
-                    double t1 = o1.calculateTotalCost(currentLocation, currentQty[0]);
-                    double t2 = o2.calculateTotalCost(currentLocation, currentQty[0]);
-                    return Double.compare(t1, t2);
-                });
-
-                for (final SupplierOffer offer : sortedOffers) {
-                    View itemView = inflater.inflate(R.layout.item_supplier_comparison, llContainer, false);
-
-                    TextView tvSupName = itemView.findViewById(R.id.tvSupplierName);
-                    TextView tvSupDist = itemView.findViewById(R.id.tvSupplierDistrictAndDistance);
-                    TextView tvSupBadge = itemView.findViewById(R.id.tvSupplierBadge);
-                    TextView tvNote = itemView.findViewById(R.id.tvOfferNote);
-                    TextView tvShipping = itemView.findViewById(R.id.tvFreeShippingCondition);
-                    TextView tvUnit = itemView.findViewById(R.id.tvUnitPrice);
-                    TextView tvFlete = itemView.findViewById(R.id.tvFleteCost);
-                    TextView tvTotal = itemView.findViewById(R.id.tvFinalTotal);
-                    TextView btnSelect = itemView.findViewById(R.id.btnSelectSupplier);
-                    View rootCard = itemView.findViewById(R.id.cardSupplierComparison);
-
-                    double dist = currentLocation.distanceTo(offer.supplier.lat, offer.supplier.lng);
-                    double subtotal = offer.price * currentQty[0];
-                    double flete = offer.supplier.calculateDeliveryFee(currentLocation, subtotal);
-                    double total = subtotal + flete;
-
-                    tvSupName.setText(offer.supplier.name);
-                    tvSupDist.setText(String.format(Locale.US, "📍 %.1f km • %s • %s", dist, offer.supplier.district, offer.supplier.badge));
-                    tvNote.setText(offer.note + " • Stock: " + offer.stock + " unid.");
-
-                    if (subtotal >= offer.supplier.freeShippingThreshold) {
-                        tvShipping.setText("🎉 ¡ENVÍO GRATIS APLICADO! Superó S/ " + String.format(Locale.US, "%.0f", offer.supplier.freeShippingThreshold));
-                        tvShipping.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.green_save));
-                        tvFlete.setText("GRATIS");
-                        tvFlete.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.green_save));
-                    } else {
-                        double missing = offer.supplier.freeShippingThreshold - subtotal;
-                        tvShipping.setText(String.format(Locale.US, "⏱️ %s • Envío gratis desde S/ %.0f (Faltan S/ %.2f)",
-                                offer.supplier.deliveryTimeEstimate, offer.supplier.freeShippingThreshold, missing));
-                        tvShipping.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.text_secondary));
-                        tvFlete.setText(String.format(Locale.US, "S/ %.2f", flete));
-                        tvFlete.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.text_primary));
-                    }
-
-                    tvUnit.setText(String.format(Locale.US, "S/ %.2f (%d u.)", subtotal, currentQty[0]));
-                    tvTotal.setText(String.format(Locale.US, "S/ %.2f", total));
-
-                    // Badges distintivos
-                    if (offer == bestTotalOffer) {
-                        tvSupBadge.setVisibility(View.VISIBLE);
-                        tvSupBadge.setText("🌟 MEJOR TOTAL");
-                        tvSupBadge.setBackgroundResource(R.drawable.bg_gold_badge);
-                        rootCard.setBackgroundResource(R.drawable.bg_card_highlight);
-                    } else if (offer == lowestPriceOffer) {
-                        tvSupBadge.setVisibility(View.VISIBLE);
-                        tvSupBadge.setText("💰 MENOR PRECIO");
-                        tvSupBadge.setBackgroundResource(R.drawable.bg_pill_blue);
-                    } else if (offer == closestOffer) {
-                        tvSupBadge.setVisibility(View.VISIBLE);
-                        tvSupBadge.setText("📍 MÁS CERCANO");
-                        tvSupBadge.setBackgroundResource(R.drawable.bg_pill_green);
-                    } else {
-                        tvSupBadge.setVisibility(View.GONE);
-                    }
-
-                    btnSelect.setOnClickListener(v -> {
-                        addToCart(product, offer, currentQty[0]);
-                        dialog.dismiss();
-                        Toast.makeText(MainActivity.this,
-                                "✅ Agregado " + currentQty[0] + "x " + product.name + " (" + offer.supplier.name + ")",
-                                Toast.LENGTH_SHORT).show();
-                    });
-
-                    llContainer.addView(itemView);
-                }
-            }
-        };
-
-        renderOffers.run();
+        renderSupplierOffers(dialog, llContainer, product, currentQty[0], true);
 
         btnPlus.setOnClickListener(v -> {
             if (currentQty[0] < 50) {
                 currentQty[0]++;
                 tvQuantity.setText(String.valueOf(currentQty[0]));
-                renderOffers.run();
+                Motion.popBump(tvQuantity);
+                renderSupplierOffers(dialog, llContainer, product, currentQty[0], false);
             }
         });
 
@@ -658,12 +607,110 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
             if (currentQty[0] > 1) {
                 currentQty[0]--;
                 tvQuantity.setText(String.valueOf(currentQty[0]));
-                renderOffers.run();
+                Motion.popBump(tvQuantity);
+                renderSupplierOffers(dialog, llContainer, product, currentQty[0], false);
             }
         });
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
+    }
+
+    /** Pinta las ofertas ordenadas por costo total para la cantidad indicada. */
+    private void renderSupplierOffers(final Dialog dialog, final LinearLayout container,
+                                      final Product product, final int qty, boolean animate) {
+        container.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+
+        // Oferta más conveniente para esta cantidad específica
+        SupplierOffer bestTotalOffer = product.getMostConvenientOffer(currentLocation, qty);
+        SupplierOffer lowestPriceOffer = product.getLowestPriceOffer();
+        SupplierOffer closestOffer = product.getClosestOffer(currentLocation);
+
+        // Ordenar ofertas por costo total con flete
+        List<SupplierOffer> sortedOffers = new ArrayList<>(product.offers);
+        Collections.sort(sortedOffers, (o1, o2) -> {
+            double t1 = o1.calculateTotalCost(currentLocation, qty);
+            double t2 = o2.calculateTotalCost(currentLocation, qty);
+            return Double.compare(t1, t2);
+        });
+
+        List<View> rows = new ArrayList<>();
+        for (final SupplierOffer offer : sortedOffers) {
+            View itemView = inflater.inflate(R.layout.item_supplier_comparison, container, false);
+
+            TextView tvSupName = itemView.findViewById(R.id.tvSupplierName);
+            TextView tvSupDist = itemView.findViewById(R.id.tvSupplierDistrictAndDistance);
+            TextView tvSupBadge = itemView.findViewById(R.id.tvSupplierBadge);
+            TextView tvNote = itemView.findViewById(R.id.tvOfferNote);
+            TextView tvShipping = itemView.findViewById(R.id.tvFreeShippingCondition);
+            TextView tvUnit = itemView.findViewById(R.id.tvUnitPrice);
+            TextView tvFlete = itemView.findViewById(R.id.tvFleteCost);
+            TextView tvTotal = itemView.findViewById(R.id.tvFinalTotal);
+            MaterialButton btnSelect = itemView.findViewById(R.id.btnSelectSupplier);
+            MaterialCardView rootCard = itemView.findViewById(R.id.cardSupplierComparison);
+
+            double dist = currentLocation.distanceTo(offer.supplier.lat, offer.supplier.lng);
+            double subtotal = offer.price * qty;
+            double flete = offer.supplier.calculateDeliveryFee(currentLocation, subtotal);
+            double total = subtotal + flete;
+
+            tvSupName.setText(offer.supplier.name);
+            tvSupDist.setText(String.format(Locale.US, "%.1f km • %s • %s", dist, offer.supplier.district, offer.supplier.badge));
+            tvNote.setText(offer.note + " • Stock: " + offer.stock + " unid.");
+
+            if (subtotal >= offer.supplier.freeShippingThreshold) {
+                tvShipping.setText("Envío gratis aplicado · superó S/ " + String.format(Locale.US, "%.0f", offer.supplier.freeShippingThreshold));
+                tvShipping.setTextColor(androidx.core.content.ContextCompat.getColor(MainActivity.this, R.color.sage));
+                tvFlete.setText("GRATIS");
+                tvFlete.setTextColor(androidx.core.content.ContextCompat.getColor(MainActivity.this, R.color.sage));
+            } else {
+                double missing = offer.supplier.freeShippingThreshold - subtotal;
+                tvShipping.setText(String.format(Locale.US, "%s · Envío gratis desde S/ %.0f (faltan S/ %.2f)",
+                        offer.supplier.deliveryTimeEstimate, offer.supplier.freeShippingThreshold, missing));
+                tvShipping.setTextColor(androidx.core.content.ContextCompat.getColor(MainActivity.this, R.color.ink_muted));
+                tvFlete.setText(String.format(Locale.US, "S/ %.2f", flete));
+                tvFlete.setTextColor(androidx.core.content.ContextCompat.getColor(MainActivity.this, R.color.ink));
+            }
+
+            tvUnit.setText(String.format(Locale.US, "S/ %.2f (%d u.)", subtotal, qty));
+            tvTotal.setText(String.format(Locale.US, "S/ %.2f", total));
+
+            // Distintivos
+            if (offer == bestTotalOffer) {
+                tvSupBadge.setVisibility(View.VISIBLE);
+                tvSupBadge.setText("MEJOR TOTAL");
+                tvSupBadge.setBackgroundResource(R.drawable.bg_pill_gilt);
+                tvSupBadge.setTextColor(androidx.core.content.ContextCompat.getColor(MainActivity.this, R.color.gilt_dark));
+                rootCard.setStrokeColor(androidx.core.content.ContextCompat.getColorStateList(MainActivity.this, R.color.gilt));
+                rootCard.setStrokeWidth((int) Motion.dp(rootCard, 1.25f));
+            } else if (offer == lowestPriceOffer) {
+                tvSupBadge.setVisibility(View.VISIBLE);
+                tvSupBadge.setText("MENOR PRECIO");
+                tvSupBadge.setBackgroundResource(R.drawable.bg_pill_rule);
+                tvSupBadge.setTextColor(androidx.core.content.ContextCompat.getColor(MainActivity.this, R.color.ink));
+            } else if (offer == closestOffer) {
+                tvSupBadge.setVisibility(View.VISIBLE);
+                tvSupBadge.setText("MÁS CERCANO");
+                tvSupBadge.setBackgroundResource(R.drawable.bg_pill_sage);
+                tvSupBadge.setTextColor(androidx.core.content.ContextCompat.getColor(MainActivity.this, R.color.sage));
+            } else {
+                tvSupBadge.setVisibility(View.GONE);
+            }
+
+            btnSelect.setOnClickListener(v -> {
+                addToCart(product, offer, qty);
+                dialog.dismiss();
+                showMessage("Agregado " + qty + "× " + product.name + " (" + offer.supplier.name + ")");
+            });
+
+            container.addView(itemView);
+            rows.add(itemView);
+        }
+
+        if (animate) {
+            Motion.staggerIn(rows, 70);
+        }
     }
 
     // ==========================================
@@ -686,14 +733,17 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
     private void updateCartBar() {
         if (cartItems.isEmpty()) {
-            cardCartBar.setVisibility(View.GONE);
+            if (cardCartBar.getVisibility() == View.VISIBLE) {
+                Motion.slideDownOut(cardCartBar);
+            }
+            lastCartUnits = 0;
             return;
         }
 
         int totalUnits = 0;
         double productsSubtotal = 0.0;
 
-        // Calcular subtotales por proveedor para determinar fletes correctos
+        // Subtotales por proveedor para calcular fletes correctos
         Map<String, Double> supplierSubtotals = new HashMap<>();
         Map<String, Supplier> supplierMap = new HashMap<>();
 
@@ -718,130 +768,40 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         double grandTotal = productsSubtotal + totalFlete;
 
-        cardCartBar.setVisibility(View.VISIBLE);
-        tvCartSummaryCountAndTotal.setText(String.format(Locale.US, "🛒 %d %s • S/ %.2f Total",
+        boolean wasHidden = cardCartBar.getVisibility() != View.VISIBLE;
+        tvCartSummaryCountAndTotal.setText(String.format(Locale.US, "%d %s · S/ %.2f",
                 totalUnits, totalUnits == 1 ? "ítem" : "ítems", grandTotal));
         tvCartSummarySubtitle.setText(String.format(Locale.US, "Incluye S/ %.2f de flete a %s", totalFlete, currentLocation.name));
+
+        if (wasHidden) {
+            Motion.slideUpIn(cardCartBar);
+        } else if (totalUnits != lastCartUnits) {
+            Motion.popBump(tvCartSummaryCountAndTotal);
+        }
+        lastCartUnits = totalUnits;
     }
 
     private void showCartDialog() {
         if (cartItems.isEmpty()) {
-            Toast.makeText(this, "El carrito de abastecimiento está vacío", Toast.LENGTH_SHORT).show();
+            showMessage("El pedido está vacío");
             return;
         }
 
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        final BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(R.layout.dialog_cart);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(
-                    (int) (getResources().getDisplayMetrics().widthPixels * 0.95),
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-        }
 
-        TextView btnClose = dialog.findViewById(R.id.btnCartClose);
+        MaterialButton btnClose = dialog.findViewById(R.id.btnCartClose);
         TextView tvDest = dialog.findViewById(R.id.tvCartDestination);
         final LinearLayout llContainer = dialog.findViewById(R.id.llCartItemsContainer);
         final TextView tvSubtotal = dialog.findViewById(R.id.tvCartSubtotal);
         final TextView tvFlete = dialog.findViewById(R.id.tvCartTotalFlete);
         final TextView tvGrandTotal = dialog.findViewById(R.id.tvCartGrandTotal);
-        TextView btnSendWhatsApp = dialog.findViewById(R.id.btnSendOrderWhatsApp);
-        TextView btnClear = dialog.findViewById(R.id.btnClearCart);
+        MaterialButton btnSendWhatsApp = dialog.findViewById(R.id.btnSendOrderWhatsApp);
+        MaterialButton btnClear = dialog.findViewById(R.id.btnClearCart);
 
         tvDest.setText("Destino: " + currentLocation.name);
 
-        final Runnable refreshCartContent = new Runnable() {
-            @Override
-            public void run() {
-                llContainer.removeAllViews();
-                if (cartItems.isEmpty()) {
-                    dialog.dismiss();
-                    updateCartBar();
-                    return;
-                }
-
-                double subtotalAll = 0.0;
-                Map<String, Double> supplierSubtotals = new HashMap<>();
-                Map<String, Supplier> supplierMap = new HashMap<>();
-
-                LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-
-                for (final CartItem item : cartItems) {
-                    double lineSubtotal = item.getSubtotal();
-                    subtotalAll += lineSubtotal;
-
-                    String sId = item.offer.supplier.id;
-                    supplierMap.put(sId, item.offer.supplier);
-                    double curr = supplierSubtotals.containsKey(sId) ? supplierSubtotals.get(sId) : 0.0;
-                    supplierSubtotals.put(sId, curr + lineSubtotal);
-
-                    View itemView = inflater.inflate(R.layout.item_cart_entry, llContainer, false);
-                    ImageView ivItemImage = itemView.findViewById(R.id.ivCartItemImage);
-                    TextView tvTitle = itemView.findViewById(R.id.tvCartItemTitle);
-                    TextView tvSupplier = itemView.findViewById(R.id.tvCartItemSupplier);
-                    TextView tvQty = itemView.findViewById(R.id.tvCartItemQuantity);
-                    TextView tvItemSubtotal = itemView.findViewById(R.id.tvCartItemSubtotal);
-                    TextView tvUnitPrice = itemView.findViewById(R.id.tvCartItemUnitPrice);
-                    TextView btnRemove = itemView.findViewById(R.id.btnRemoveCartItem);
-                    TextView btnMinus = itemView.findViewById(R.id.btnCartItemMinus);
-                    TextView btnPlus = itemView.findViewById(R.id.btnCartItemPlus);
-
-                    if (item.product.imageResId != 0) {
-                        ivItemImage.setImageResource(item.product.imageResId);
-                    } else {
-                        ivItemImage.setImageResource(R.drawable.img_sporade);
-                    }
-
-                    tvTitle.setText(item.product.name);
-                    tvSupplier.setText("🏢 " + item.offer.supplier.name);
-                    tvQty.setText(String.valueOf(item.quantity));
-                    tvUnitPrice.setText(String.format(Locale.US, "S/ %.2f c/u", item.offer.price));
-                    tvItemSubtotal.setText(String.format(Locale.US, "S/ %.2f", lineSubtotal));
-
-                    btnPlus.setOnClickListener(v -> {
-                        item.quantity++;
-                        run();
-                        updateCartBar();
-                    });
-
-                    btnMinus.setOnClickListener(v -> {
-                        if (item.quantity > 1) {
-                            item.quantity--;
-                        } else {
-                            cartItems.remove(item);
-                        }
-                        run();
-                        updateCartBar();
-                    });
-
-                    btnRemove.setOnClickListener(v -> {
-                        cartItems.remove(item);
-                        run();
-                        updateCartBar();
-                    });
-
-                    llContainer.addView(itemView);
-                }
-
-                double fleteAll = 0.0;
-                for (Map.Entry<String, Double> entry : supplierSubtotals.entrySet()) {
-                    Supplier s = supplierMap.get(entry.getKey());
-                    if (s != null) {
-                        fleteAll += s.calculateDeliveryFee(currentLocation, entry.getValue());
-                    }
-                }
-
-                double grandTotal = subtotalAll + fleteAll;
-
-                tvSubtotal.setText(String.format(Locale.US, "S/ %.2f", subtotalAll));
-                tvFlete.setText(String.format(Locale.US, "S/ %.2f", fleteAll));
-                tvGrandTotal.setText(String.format(Locale.US, "S/ %.2f", grandTotal));
-            }
-        };
-
-        refreshCartContent.run();
+        renderCartSheet(dialog, llContainer, tvSubtotal, tvFlete, tvGrandTotal, true);
 
         // Enviar pedido vía WhatsApp
         btnSendWhatsApp.setOnClickListener(v -> {
@@ -849,22 +809,118 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
             dialog.dismiss();
         });
 
-        // Vaciar Carrito
+        // Vaciar pedido
         btnClear.setOnClickListener(v -> {
             cartItems.clear();
             dialog.dismiss();
             updateCartBar();
-            Toast.makeText(MainActivity.this, "🗑️ Carrito vaciado", Toast.LENGTH_SHORT).show();
+            showMessage("Pedido vaciado");
         });
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
 
+    /** Pinta las líneas del pedido y los totales. Se llama al abrir y tras cada cambio de cantidad. */
+    private void renderCartSheet(final BottomSheetDialog dialog, final LinearLayout llContainer,
+                                 final TextView tvSubtotal, final TextView tvFlete,
+                                 final TextView tvGrandTotal, boolean animateEntrance) {
+        llContainer.removeAllViews();
+        if (cartItems.isEmpty()) {
+            dialog.dismiss();
+            updateCartBar();
+            return;
+        }
+
+        double subtotalAll = 0.0;
+        Map<String, Double> supplierSubtotals = new HashMap<>();
+        Map<String, Supplier> supplierMap = new HashMap<>();
+
+        LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+        List<View> rows = new ArrayList<>();
+
+        for (final CartItem item : cartItems) {
+            double lineSubtotal = item.getSubtotal();
+            subtotalAll += lineSubtotal;
+
+            String sId = item.offer.supplier.id;
+            supplierMap.put(sId, item.offer.supplier);
+            double curr = supplierSubtotals.containsKey(sId) ? supplierSubtotals.get(sId) : 0.0;
+            supplierSubtotals.put(sId, curr + lineSubtotal);
+
+            View itemView = inflater.inflate(R.layout.item_cart_entry, llContainer, false);
+            ImageView ivItemImage = itemView.findViewById(R.id.ivCartItemImage);
+            TextView tvTitle = itemView.findViewById(R.id.tvCartItemTitle);
+            TextView tvSupplier = itemView.findViewById(R.id.tvCartItemSupplier);
+            final TextView tvQty = itemView.findViewById(R.id.tvCartItemQuantity);
+            TextView tvItemSubtotal = itemView.findViewById(R.id.tvCartItemSubtotal);
+            TextView tvUnitPrice = itemView.findViewById(R.id.tvCartItemUnitPrice);
+            MaterialButton btnRemove = itemView.findViewById(R.id.btnRemoveCartItem);
+            MaterialButton btnMinus = itemView.findViewById(R.id.btnCartItemMinus);
+            MaterialButton btnPlus = itemView.findViewById(R.id.btnCartItemPlus);
+
+            if (item.product.imageResId != 0) {
+                ivItemImage.setImageResource(item.product.imageResId);
+            } else {
+                ivItemImage.setImageResource(R.drawable.img_sporade);
+            }
+
+            tvTitle.setText(item.product.name);
+            tvSupplier.setText(item.offer.supplier.name);
+            tvQty.setText(String.valueOf(item.quantity));
+            tvUnitPrice.setText(String.format(Locale.US, "S/ %.2f c/u", item.offer.price));
+            tvItemSubtotal.setText(String.format(Locale.US, "S/ %.2f", lineSubtotal));
+
+            btnPlus.setOnClickListener(v -> {
+                item.quantity++;
+                Motion.popBump(tvQty);
+                renderCartSheet(dialog, llContainer, tvSubtotal, tvFlete, tvGrandTotal, false);
+                updateCartBar();
+            });
+
+            btnMinus.setOnClickListener(v -> {
+                if (item.quantity > 1) {
+                    item.quantity--;
+                } else {
+                    cartItems.remove(item);
+                }
+                renderCartSheet(dialog, llContainer, tvSubtotal, tvFlete, tvGrandTotal, false);
+                updateCartBar();
+            });
+
+            btnRemove.setOnClickListener(v -> {
+                cartItems.remove(item);
+                renderCartSheet(dialog, llContainer, tvSubtotal, tvFlete, tvGrandTotal, false);
+                updateCartBar();
+            });
+
+            llContainer.addView(itemView);
+            rows.add(itemView);
+        }
+
+        double fleteAll = 0.0;
+        for (Map.Entry<String, Double> entry : supplierSubtotals.entrySet()) {
+            Supplier s = supplierMap.get(entry.getKey());
+            if (s != null) {
+                fleteAll += s.calculateDeliveryFee(currentLocation, entry.getValue());
+            }
+        }
+
+        double grandTotal = subtotalAll + fleteAll;
+
+        tvSubtotal.setText(String.format(Locale.US, "S/ %.2f", subtotalAll));
+        tvFlete.setText(String.format(Locale.US, "S/ %.2f", fleteAll));
+        tvGrandTotal.setText(String.format(Locale.US, "S/ %.2f", grandTotal));
+
+        if (animateEntrance) {
+            Motion.staggerIn(rows, 70);
+        }
+    }
+
     private void sendOrderViaWhatsApp() {
         if (cartItems.isEmpty()) return;
 
-        // Armar mensaje formal de abastecimiento B2B
+        // Mensaje formal de abastecimiento B2B
         StringBuilder message = new StringBuilder();
         message.append("📦 *PEDIDO DE ABASTECIMIENTO MAYORISTA*\n");
         message.append("🏪 *Bodega Destino*: Mi Bodega Chiclayo\n");
@@ -885,7 +941,7 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         for (Map.Entry<String, List<CartItem>> entry : grouped.entrySet()) {
             Supplier sup = entry.getValue().get(0).offer.supplier;
-            message.append("🏢 *DISTRIBUIDOR: ").append(sup.name.toUpperCase()).append("*\n");
+            message.append("🏢 *DISTRIBUIDOR: ").append(sup.name.toUpperCase(Locale.ROOT)).append("*\n");
             message.append("📍 Almacén: ").append(sup.address).append(" (").append(sup.district).append(")\n");
 
             double supSubtotal = 0.0;
@@ -916,7 +972,7 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         try {
             String encoded = URLEncoder.encode(message.toString(), "UTF-8");
-            // Tomamos el teléfono del primer proveedor para el enlace de WhatsApp
+            // Teléfono del primer proveedor para el enlace de WhatsApp
             String phone = cartItems.get(0).offer.supplier.phone;
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse("https://api.whatsapp.com/send?phone=51" + phone + "&text=" + encoded));
@@ -927,7 +983,7 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
             sendIntent.putExtra(Intent.EXTRA_TEXT, message.toString());
             startActivity(Intent.createChooser(sendIntent, "Enviar Pedido Mayorista"));
         } catch (Exception e) {
-            Toast.makeText(this, "Abriendo selector de mensajería...", Toast.LENGTH_SHORT).show();
+            showMessage("Abriendo selector de mensajería…");
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
             sendIntent.setType("text/plain");
             sendIntent.putExtra(Intent.EXTRA_TEXT, message.toString());
