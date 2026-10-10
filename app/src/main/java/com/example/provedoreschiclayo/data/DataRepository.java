@@ -331,28 +331,28 @@ public class DataRepository {
         products.add(p22);
 
         // 23. CARAMELOS HALLS
-        Product p23 = new Product("p_halls", "Caramelos Halls Mentol", "Golosinas", "Mondelez", "Display x 20 blísteres", "🍬", 0);
+        Product p23 = new Product("p_halls", "Caramelos Halls Mentol", "Golosinas", "Mondelez", "Display x 20 blísteres", "🍬", R.drawable.img_halls);
         p23.addOffer(new SupplierOffer(sEten, 21.00, 40, "Display x 20 blísteres"));
         p23.addOffer(new SupplierOffer(sMonsefu, 21.50, 60, "Display x 20 blísteres"));
         p23.addOffer(new SupplierOffer(sVictoria, 22.00, 70, "Display x 20 unidades"));
         products.add(p23);
 
         // 24. LAVAVAJILLAS SAPOLIO
-        Product p24 = new Product("p_sapolio", "Lavavajillas Sapolio Limón 500ml", "Limpieza", "Sapolio", "Caja x 12 frascos", "🍋", 0);
+        Product p24 = new Product("p_sapolio", "Lavavajillas Sapolio Limón 500ml", "Limpieza", "Sapolio", "Caja x 12 frascos", "🍋", R.drawable.img_sapolio);
         p24.addOffer(new SupplierOffer(sLamba, 44.20, 60, "Caja x 12 frascos"));
         p24.addOffer(new SupplierOffer(sMosho, 45.00, 70, "Caja x 12 frascos 500ml"));
         p24.addOffer(new SupplierOffer(sBalta, 46.00, 50, "Caja x 12 sellada"));
         products.add(p24);
 
         // 25. PAPEL HIGIÉNICO ELITE
-        Product p25 = new Product("p_papel", "Papel Higiénico Elite Doble Hoja", "Limpieza", "Elite", "Fardo x 8 paquetes de 4 rollos", "🧻", 0);
+        Product p25 = new Product("p_papel", "Papel Higiénico Elite Doble Hoja", "Limpieza", "Elite", "Fardo x 8 paquetes de 4 rollos", "🧻", R.drawable.img_papel);
         p25.addOffer(new SupplierOffer(sFerrenafe, 36.50, 60, "Fardo x 8 paquetes"));
         p25.addOffer(new SupplierOffer(sOeste, 37.20, 80, "Fardo x 8 paquetes"));
         p25.addOffer(new SupplierOffer(sVictoria, 38.00, 90, "Fardo x 8 paquetes"));
         products.add(p25);
 
         // 26. LEJÍA CLOROX
-        Product p26 = new Product("p_lejia", "Lejía Clorox 1L", "Limpieza", "Clorox", "Caja x 12 botellas", "🧴", 0);
+        Product p26 = new Product("p_lejia", "Lejía Clorox 1L", "Limpieza", "Clorox", "Caja x 12 botellas", "🧴", R.drawable.img_lejia);
         p26.addOffer(new SupplierOffer(sReque, 30.50, 90, "Caja x 12 botellas"));
         p26.addOffer(new SupplierOffer(sMosho, 30.80, 110, "Caja x 12 botellas 1L"));
         p26.addOffer(new SupplierOffer(sMonsefu, 31.00, 50, "Caja x 12 botellas"));
