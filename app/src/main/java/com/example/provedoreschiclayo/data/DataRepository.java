@@ -91,6 +91,71 @@ public class DataRepository {
                 "🥤 Especialista Bebidas"
         ));
 
+        // 6. Ferreñafe (fábrica norte)
+        sups.add(new Supplier(
+                "sup_ferrenafe",
+                "Distribuidora Ferreñafe Mayorista",
+                "Ferreñafe",
+                "Av. Leguía 340, Ferreñafe",
+                "973111222",
+                -6.6425, -79.7905,
+                4.50, 0.65, 150.0, 4.4,
+                "50 - 75 min",
+                "🏭 Precio de Fábrica Norte"
+        ));
+
+        // 7. Monsefú (atención personalizada)
+        sups.add(new Supplier(
+                "sup_monsefu",
+                "Abarrotes Monsefú Hnos. SRL",
+                "Monsefú",
+                "Jr. Bolognesi 215, Monsefú",
+                "972222333",
+                -6.8800, -79.8780,
+                4.00, 0.80, 120.0, 4.6,
+                "45 - 65 min",
+                "🤝 Atención Personalizada"
+        ));
+
+        // 8. Reque (reparto rápido sur)
+        sups.add(new Supplier(
+                "sup_reque",
+                "Comercial Reque Express",
+                "Reque",
+                "Carretera Chiclayo-Reque km 3, Reque",
+                "971888999",
+                -6.8500, -79.8350,
+                3.80, 0.70, 135.0, 4.5,
+                "30 - 45 min",
+                "🚚 Reparto Rápido"
+        ));
+
+        // 9. Puerto Eten (costa norte)
+        sups.add(new Supplier(
+                "sup_eten",
+                "Distribuidora Puerto Eten",
+                "Puerto Eten",
+                "Av. Malecón 80, Puerto Eten",
+                "975333444",
+                -6.9000, -79.8700,
+                5.50, 0.55, 170.0, 4.3,
+                "55 - 80 min",
+                "🌊 Cobertura Costa Norte"
+        ));
+
+        // 10. Chiclayo Oeste (mayor variedad)
+        sups.add(new Supplier(
+                "sup_oeste",
+                "Mayorista Chiclayo Oeste",
+                "Chiclayo Oeste",
+                "Urb. Los Parques 402, Chiclayo",
+                "976777888",
+                -6.7830, -79.8600,
+                4.20, 0.80, 125.0, 4.7,
+                "35 - 55 min",
+                "💎 Mayor Variedad"
+        ));
+
         return sups;
     }
 
@@ -100,6 +165,11 @@ public class DataRepository {
         Supplier sLamba = suppliers.get(2);
         Supplier sVictoria = suppliers.get(3);
         Supplier sBebidas = suppliers.get(4);
+        Supplier sFerrenafe = suppliers.get(5);
+        Supplier sMonsefu = suppliers.get(6);
+        Supplier sReque = suppliers.get(7);
+        Supplier sEten = suppliers.get(8);
+        Supplier sOeste = suppliers.get(9);
 
         List<Product> products = new ArrayList<>();
 
@@ -185,6 +255,108 @@ public class DataRepository {
         p12.addOffer(new SupplierOffer(sMosho, 54.00, 130, "Fardo x 12 bolsas"));
         p12.addOffer(new SupplierOffer(sVictoria, 53.50, 90, "Fardo x 12 unidades"));
         products.add(p12);
+
+        // ---- Productos adicionales (sin foto propia: se muestra la lámina genérica) ----
+
+        // 13. AGUA SAN LUIS
+        Product p13 = new Product("p_agua", "Agua San Luis 625ml", "Bebidas", "San Luis", "Caja x 24 botellas 625ml", "💧", 0);
+        p13.addOffer(new SupplierOffer(sBebidas, 26.90, 260, "Caja x 24 fábrica"));
+        p13.addOffer(new SupplierOffer(sFerrenafe, 27.20, 120, "Caja x 24 distribuidor"));
+        p13.addOffer(new SupplierOffer(sMosho, 27.80, 140, "Caja x 24 botellas 625ml"));
+        p13.addOffer(new SupplierOffer(sBalta, 28.40, 90, "Caja x 24 sellada"));
+        products.add(p13);
+
+        // 14. JUGO FRUGOS
+        Product p14 = new Product("p_frugos", "Jugo Frugos Durazno 200ml", "Bebidas", "Frugos", "Caja x 27 tetra briks", "🧃", 0);
+        p14.addOffer(new SupplierOffer(sBebidas, 30.80, 200, "Caja x 27 tetra briks"));
+        p14.addOffer(new SupplierOffer(sOeste, 31.20, 110, "Caja x 27 surtidos"));
+        p14.addOffer(new SupplierOffer(sLamba, 31.50, 80, "Caja x 27 oferta Lambayeque"));
+        products.add(p14);
+
+        // 15. LECHE EVAPORADA GLORIA
+        Product p15 = new Product("p_evaporada", "Leche Evaporada Gloria 400g", "Abarrotes", "Gloria", "Caja x 48 latas", "🥫", 0);
+        p15.addOffer(new SupplierOffer(sLamba, 115.50, 75, "Caja x 48 latas"));
+        p15.addOffer(new SupplierOffer(sMonsefu, 116.80, 40, "Caja x 48 latas enteras"));
+        p15.addOffer(new SupplierOffer(sReque, 117.50, 55, "Caja x 48 unidades"));
+        p15.addOffer(new SupplierOffer(sMosho, 118.00, 60, "Caja x 48 etiqueta roja"));
+        products.add(p15);
+
+        // 16. FIDEOS DON VITTORIO
+        Product p16 = new Product("p_fideos", "Fideos Don Vittorio Spaghetti 1kg", "Abarrotes", "Don Vittorio", "Caja x 10 paquetes 1kg", "🍝", 0);
+        p16.addOffer(new SupplierOffer(sFerrenafe, 20.80, 200, "Caja x 10 paquetes"));
+        p16.addOffer(new SupplierOffer(sOeste, 21.40, 180, "Caja x 10 paquetes 1kg"));
+        p16.addOffer(new SupplierOffer(sBalta, 21.90, 150, "Caja x 10 sellada"));
+        products.add(p16);
+
+        // 17. SAL EMSAL
+        Product p17 = new Product("p_sal", "Sal Marina Emsal 1kg", "Abarrotes", "Emsal", "Caja x 20 bolsas 1kg", "🧂", 0);
+        p17.addOffer(new SupplierOffer(sEten, 19.00, 90, "Caja x 20 bolsas"));
+        p17.addOffer(new SupplierOffer(sMonsefu, 19.60, 70, "Caja x 20 bolsas 1kg"));
+        p17.addOffer(new SupplierOffer(sMosho, 20.50, 120, "Caja x 20 bolsas selladas"));
+        products.add(p17);
+
+        // 18. HARINA BLANCA FLOR
+        Product p18 = new Product("p_harina", "Harina Blanca Flor 1kg", "Abarrotes", "Blanca Flor", "Caja x 10 bolsas 1kg", "🥖", 0);
+        p18.addOffer(new SupplierOffer(sReque, 31.40, 80, "Caja x 10 bolsas"));
+        p18.addOffer(new SupplierOffer(sMosho, 32.00, 100, "Caja x 10 bolsas 1kg"));
+        p18.addOffer(new SupplierOffer(sBalta, 32.80, 90, "Caja x 10 sellada"));
+        products.add(p18);
+
+        // 19. CAFÉ ALTOMAYO
+        Product p19 = new Product("p_cafe", "Café Altomayo 170g", "Abarrotes", "Altomayo", "Caja x 24 frascos", "☕", 0);
+        p19.addOffer(new SupplierOffer(sFerrenafe, 87.00, 50, "Caja x 24 frascos"));
+        p19.addOffer(new SupplierOffer(sLamba, 88.00, 45, "Caja x 24 frascos oferta"));
+        p19.addOffer(new SupplierOffer(sOeste, 90.50, 60, "Caja x 24 frascos"));
+        products.add(p19);
+
+        // 20. MAYONESA ALACENA
+        Product p20 = new Product("p_mayonesa", "Mayonesa Alacena 350g", "Abarrotes", "Alacena", "Caja x 12 frascos", "🥄", 0);
+        p20.addOffer(new SupplierOffer(sReque, 35.20, 60, "Caja x 12 frascos"));
+        p20.addOffer(new SupplierOffer(sMonsefu, 35.80, 40, "Caja x 12 frascos"));
+        p20.addOffer(new SupplierOffer(sMosho, 36.00, 80, "Caja x 12 frascos 350g"));
+        products.add(p20);
+
+        // 21. CHOCOLATE SUBLIME
+        Product p21 = new Product("p_sublime", "Chocolate Sublime Clásico 30g", "Golosinas", "Nestlé", "Display x 24 unidades", "🍫", 0);
+        p21.addOffer(new SupplierOffer(sEten, 26.50, 60, "Display x 24 unidades"));
+        p21.addOffer(new SupplierOffer(sOeste, 26.80, 70, "Display x 24 barras"));
+        p21.addOffer(new SupplierOffer(sBalta, 27.00, 90, "Display x 24 sellado"));
+        products.add(p21);
+
+        // 22. PAPAS LAYS
+        Product p22 = new Product("p_lays", "Papas Lay's Clásicas 40g", "Golosinas", "Lay's", "Caja x 24 bolsas", "🥔", 0);
+        p22.addOffer(new SupplierOffer(sOeste, 29.40, 120, "Caja x 24 bolsas"));
+        p22.addOffer(new SupplierOffer(sReque, 29.80, 90, "Caja x 24 bolsas clásicas"));
+        p22.addOffer(new SupplierOffer(sMosho, 30.00, 110, "Caja x 24 bolsas"));
+        products.add(p22);
+
+        // 23. CARAMELOS HALLS
+        Product p23 = new Product("p_halls", "Caramelos Halls Mentol", "Golosinas", "Mondelez", "Display x 20 blísteres", "🍬", 0);
+        p23.addOffer(new SupplierOffer(sEten, 21.00, 40, "Display x 20 blísteres"));
+        p23.addOffer(new SupplierOffer(sMonsefu, 21.50, 60, "Display x 20 blísteres"));
+        p23.addOffer(new SupplierOffer(sVictoria, 22.00, 70, "Display x 20 unidades"));
+        products.add(p23);
+
+        // 24. LAVAVAJILLAS SAPOLIO
+        Product p24 = new Product("p_sapolio", "Lavavajillas Sapolio Limón 500ml", "Limpieza", "Sapolio", "Caja x 12 frascos", "🍋", 0);
+        p24.addOffer(new SupplierOffer(sLamba, 44.20, 60, "Caja x 12 frascos"));
+        p24.addOffer(new SupplierOffer(sMosho, 45.00, 70, "Caja x 12 frascos 500ml"));
+        p24.addOffer(new SupplierOffer(sBalta, 46.00, 50, "Caja x 12 sellada"));
+        products.add(p24);
+
+        // 25. PAPEL HIGIÉNICO ELITE
+        Product p25 = new Product("p_papel", "Papel Higiénico Elite Doble Hoja", "Limpieza", "Elite", "Fardo x 8 paquetes de 4 rollos", "🧻", 0);
+        p25.addOffer(new SupplierOffer(sFerrenafe, 36.50, 60, "Fardo x 8 paquetes"));
+        p25.addOffer(new SupplierOffer(sOeste, 37.20, 80, "Fardo x 8 paquetes"));
+        p25.addOffer(new SupplierOffer(sVictoria, 38.00, 90, "Fardo x 8 paquetes"));
+        products.add(p25);
+
+        // 26. LEJÍA CLOROX
+        Product p26 = new Product("p_lejia", "Lejía Clorox 1L", "Limpieza", "Clorox", "Caja x 12 botellas", "🧴", 0);
+        p26.addOffer(new SupplierOffer(sReque, 30.50, 90, "Caja x 12 botellas"));
+        p26.addOffer(new SupplierOffer(sMosho, 30.80, 110, "Caja x 12 botellas 1L"));
+        p26.addOffer(new SupplierOffer(sMonsefu, 31.00, 50, "Caja x 12 botellas"));
+        products.add(p26);
 
         return products;
     }

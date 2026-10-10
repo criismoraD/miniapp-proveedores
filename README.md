@@ -26,6 +26,12 @@ Aplicación móvil Android para abastecimiento mayorista de bodegas y tiendas de
    - **📍 Más Cercano:** Ordena por proximidad en kilómetros.
    - **🚚 Menor Flete:** Ordena por costo de delivery.
 
+3b. **📍 Ubicación de tu bodega (GPS o mapa):**
+   - **Usar mi GPS:** toma tu posición del teléfono (pide permiso de ubicación; usa la última lectura reciente o pide una nueva, sin depender de Google Play Services).
+   - **En el mapa:** toca o arrastra el marcador de Leaflet para fijar tu bodega en cualquier punto.
+   - Con cualquiera de las dos, los fletes, distancias y el orden de los proveedores se recalculan para ese punto.
+   - Las cinco zonas de referencia siguen disponibles en la misma hoja.
+
 4. **🗺️ Mapa Interactivo de Proveedores:**
    - Mapa con marcadores personalizados para tu Bodega y los distribuidores de Chiclayo y Lambayeque.
    - Líneas de distancia y costo de flete directo a tu local.

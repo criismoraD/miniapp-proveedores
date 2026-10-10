@@ -129,7 +129,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             if (product.imageResId != 0) {
                 ivProductImage.setImageResource(product.imageResId);
             } else {
-                ivProductImage.setImageResource(R.drawable.img_sporade);
+                ivProductImage.setImageResource(R.drawable.ic_product_placeholder);
             }
 
             tvBrandCategory.setText(product.category.toUpperCase(Locale.ROOT) + " · " + product.brand);

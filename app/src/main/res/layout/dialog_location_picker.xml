@@ -67,6 +67,43 @@
         android:layout_marginBottom="14dp"
         android:background="@color/rule" />
 
+    <!-- Ubicación precisa: GPS o marcar en el mapa -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUseGps"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="Usar mi GPS"
+            app:icon="@drawable/ic_my_location"
+            app:iconGravity="textStart"
+            app:iconTint="@color/paper_on_ink" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickOnMap"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text="En el mapa"
+            app:icon="@drawable/ic_map"
+            app:iconGravity="textStart"
+            app:iconTint="@color/ink" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/Pv.Overline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="Zonas de referencia" />
+
     <!-- Opciones de ubicación -->
     <LinearLayout
         android:id="@+id/llLocationListContainer"

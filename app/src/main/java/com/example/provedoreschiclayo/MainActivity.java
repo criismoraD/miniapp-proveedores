@@ -5,7 +5,14 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,7 +28,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -59,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     // Repositorio y Datos
     private List<DistrictLocation> locations;
     private DistrictLocation currentLocation;
+    private DistrictLocation customLocation; // Ubicación GPS o punto marcado en el mapa
+    private ActivityResultLauncher<String[]> locationPermissionLauncher;
     private List<Supplier> suppliers;
     private List<Product> allProducts;
     private final List<Product> filteredProducts = new ArrayList<>();
@@ -101,6 +113,10 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        locationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                this::onLocationPermissionResult);
 
         initData();
         initViews();
@@ -496,9 +512,27 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
+        MaterialButton btnUseGps = dialog.findViewById(R.id.btnUseGps);
+        MaterialButton btnPickOnMap = dialog.findViewById(R.id.btnPickOnMap);
+        btnUseGps.setOnClickListener(v -> {
+            dialog.dismiss();
+            requestGpsLocation();
+        });
+        btnPickOnMap.setOnClickListener(v -> {
+            dialog.dismiss();
+            showMapLocationPicker();
+        });
+
+        // La ubicación GPS o marcada en el mapa aparece primero, si ya existe
+        List<DistrictLocation> options = new ArrayList<>();
+        if (customLocation != null) {
+            options.add(customLocation);
+        }
+        options.addAll(locations);
+
         LayoutInflater inflater = LayoutInflater.from(this);
         List<View> rows = new ArrayList<>();
-        for (DistrictLocation loc : locations) {
+        for (DistrictLocation loc : options) {
             View itemView = inflater.inflate(R.layout.item_location_option, llContainer, false);
             TextView tvName = itemView.findViewById(R.id.tvLocationName);
             TextView tvRef = itemView.findViewById(R.id.tvLocationReference);
@@ -535,6 +569,206 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         dialog.show();
         Motion.staggerIn(rows, 60);
+    }
+
+    // ==========================================
+    // UBICACIÓN PRECISA: GPS Y MARCADO EN MAPA
+    // ==========================================
+    private static final long GPS_MAX_AGE_MS = 10 * 60 * 1000L; // Lectura previa aceptable
+    private static final long GPS_TIMEOUT_MS = 20 * 1000L;      // Espera máxima por una lectura nueva
+
+    /** Puente JavaScript → Java para el punto que el usuario marca en Leaflet. */
+    public static class PickBridge {
+        public interface Listener {
+            void onPicked(double lat, double lng);
+        }
+
+        private final Listener listener;
+
+        PickBridge(Listener listener) {
+            this.listener = listener;
+        }
+
+        @JavascriptInterface
+        public void onPicked(double lat, double lng) {
+            listener.onPicked(lat, lng);
+        }
+    }
+
+    private void requestGpsLocation() {
+        if (hasLocationPermission()) {
+            obtainCurrentLocation();
+        } else {
+            locationPermissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION});
+        }
+    }
+
+    private boolean hasLocationPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void onLocationPermissionResult(Map<String, Boolean> result) {
+        boolean granted = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_FINE_LOCATION))
+                || Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_COARSE_LOCATION));
+        if (granted) {
+            obtainCurrentLocation();
+        } else {
+            showMessage("Sin permiso de ubicación. Puedes marcar tu bodega en el mapa.");
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void obtainCurrentLocation() {
+        if (!hasLocationPermission()) {
+            return;
+        }
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (lm == null) {
+            showMessage("Este teléfono no ofrece ubicación. Márcala en el mapa.");
+            return;
+        }
+
+        // 1) Última posición conocida y reciente: respuesta inmediata
+        Location lastKnown = null;
+        for (String provider : lm.getProviders(true)) {
+            Location candidate = lm.getLastKnownLocation(provider);
+            if (candidate != null && (lastKnown == null || candidate.getTime() > lastKnown.getTime())) {
+                lastKnown = candidate;
+            }
+        }
+        if (lastKnown != null && System.currentTimeMillis() - lastKnown.getTime() < GPS_MAX_AGE_MS) {
+            applyGpsLocation(lastKnown);
+            return;
+        }
+
+        // 2) Pedir una lectura nueva (minSdk 24: sin requestSingleUpdate)
+        String provider = null;
+        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            provider = LocationManager.GPS_PROVIDER;
+        } else if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            provider = LocationManager.NETWORK_PROVIDER;
+        }
+        if (provider == null) {
+            showMessage("Activa el GPS del teléfono o marca tu bodega en el mapa.");
+            return;
+        }
+
+        showMessage("Buscando tu ubicación…");
+        final Handler handler = new Handler(Looper.getMainLooper());
+        final LocationListener[] listenerRef = new LocationListener[1];
+        listenerRef[0] = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                lm.removeUpdates(this);
+                handler.removeCallbacksAndMessages(null);
+                applyGpsLocation(location);
+            }
+
+            @Override
+            public void onStatusChanged(String p, int status, android.os.Bundle extras) {
+            }
+
+            @Override
+            public void onProviderEnabled(String p) {
+            }
+
+            @Override
+            public void onProviderDisabled(String p) {
+            }
+        };
+        lm.requestLocationUpdates(provider, 0L, 0f, listenerRef[0], Looper.getMainLooper());
+        handler.postDelayed(() -> {
+            lm.removeUpdates(listenerRef[0]);
+            showMessage("No se pudo obtener tu ubicación. Márcala en el mapa.");
+        }, GPS_TIMEOUT_MS);
+    }
+
+    private void applyGpsLocation(Location loc) {
+        String ref = String.format(Locale.US, "Lat %.4f, Lng %.4f · precisión ±%.0f m",
+                loc.getLatitude(), loc.getLongitude(), loc.getAccuracy());
+        applyCustomLocation(new DistrictLocation("gps", "Mi ubicación GPS", ref,
+                loc.getLatitude(), loc.getLongitude()), "Ubicación GPS aplicada");
+    }
+
+    private void applyCustomLocation(DistrictLocation loc, String message) {
+        customLocation = loc;
+        currentLocation = loc;
+        tvSelectedLocation.setText(loc.name);
+        refreshProductList(true);
+        updateCartBar();
+        showMessage(message + ". Fletes recalculados.");
+    }
+
+    private void showMapLocationPicker() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_location_map);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.96),
+                    (int) (getResources().getDisplayMetrics().heightPixels * 0.9));
+            dialog.getWindow().setWindowAnimations(R.style.Anim_ProvedoresChiclayo_Dialog);
+        }
+
+        MaterialButton btnClose = dialog.findViewById(R.id.btnPickClose);
+        MaterialButton btnGps = dialog.findViewById(R.id.btnPickGps);
+        final MaterialButton btnConfirm = dialog.findViewById(R.id.btnPickConfirm);
+        final TextView tvCoords = dialog.findViewById(R.id.tvPickCoords);
+        final WebView wvPick = dialog.findViewById(R.id.wvPickMap);
+
+        final double[] picked = {Double.NaN, Double.NaN};
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnGps.setOnClickListener(v -> {
+            dialog.dismiss();
+            requestGpsLocation();
+        });
+        btnConfirm.setOnClickListener(v -> {
+            if (Double.isNaN(picked[0])) {
+                return;
+            }
+            dialog.dismiss();
+            applyCustomLocation(new DistrictLocation("mapa", "Punto marcado en el mapa",
+                    String.format(Locale.US, "Lat %.4f, Lng %.4f", picked[0], picked[1]),
+                    picked[0], picked[1]), "Ubicación actualizada");
+        });
+
+        wvPick.getSettings().setJavaScriptEnabled(true);
+        wvPick.getSettings().setDomStorageEnabled(true);
+        wvPick.setWebChromeClient(new WebChromeClient());
+        wvPick.setWebViewClient(new WebViewClient());
+        wvPick.addJavascriptInterface(new PickBridge((lat, lng) -> runOnUiThread(() -> {
+            picked[0] = lat;
+            picked[1] = lng;
+            tvCoords.setText(String.format(Locale.US, "Punto elegido: %.4f, %.4f", lat, lng));
+            btnConfirm.setEnabled(true);
+        })), "AndroidPicker");
+
+        // Arranca en la ubicación actual (o la bodega por defecto la primera vez)
+        String startLat = Double.toString(currentLocation.lat);
+        String startLng = Double.toString(currentLocation.lng);
+        String html = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'>"
+                + "<link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'/>"
+                + "<script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script>"
+                + "<style>html,body,#map{height:100%;margin:0;padding:0;background:#F2ECDF}"
+                + ".leaflet-tile-pane{filter:sepia(0.30) saturate(0.82) contrast(0.96)}</style></head><body>"
+                + "<div id='map'></div><script>"
+                + "var map=L.map('map').setView([" + startLat + "," + startLng + "],15);"
+                + "L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);"
+                + "var marker=L.marker([" + startLat + "," + startLng + "],{draggable:true}).addTo(map);"
+                + "function pick(ll){marker.setLatLng(ll);if(window.AndroidPicker){AndroidPicker.onPicked(ll.lat,ll.lng);}}"
+                + "map.on('click',function(e){pick(e.latlng);});"
+                + "marker.on('dragend',function(){pick(marker.getLatLng());});"
+                + "</script></body></html>";
+        wvPick.loadDataWithBaseURL("https://unpkg.com", html, "text/html", "UTF-8", null);
+
+        dialog.show();
     }
 
     // ==========================================
@@ -584,7 +818,7 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
         if (product.imageResId != 0) {
             ivProduct.setImageResource(product.imageResId);
         } else {
-            ivProduct.setImageResource(R.drawable.img_sporade);
+            ivProduct.setImageResource(R.drawable.ic_product_placeholder);
         }
 
         tvName.setText(product.name);
@@ -862,7 +1096,7 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
             if (item.product.imageResId != 0) {
                 ivItemImage.setImageResource(item.product.imageResId);
             } else {
-                ivItemImage.setImageResource(R.drawable.img_sporade);
+                ivItemImage.setImageResource(R.drawable.ic_product_placeholder);
             }
 
             tvTitle.setText(item.product.name);
