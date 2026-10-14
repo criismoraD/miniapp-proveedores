@@ -1,6 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
 }
+
+// Lee local.properties (fuera de control de versiones) para inyectar las claves
+// de Gemini en BuildConfig. Así el código fuente NUNCA contiene secretos.
+// Mismo esquema que la app "Manos a la Obra".
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+fun secret(name: String): String =
+    (localProps.getProperty(name) ?: System.getenv(name) ?: "").trim()
 
 android {
     namespace = "com.example.provedoreschiclayo"
@@ -12,10 +24,19 @@ android {
         applicationId = "com.example.provedoreschiclayo"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Claves del asistente de voz (Gemini). Si no existen, quedan en ""
+        // y el asistente responde con el motor local sin conexión.
+        buildConfigField("String", "GEMINI_FREE_KEY", "\"${secret("GEMINI_FREE_KEY")}\"")
+        buildConfigField("String", "GEMINI_PAID_KEY", "\"${secret("GEMINI_PAID_KEY")}\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {

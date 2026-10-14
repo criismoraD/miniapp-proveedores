@@ -249,6 +249,16 @@
                     android:textColor="@color/text_muted"
                     android:textSize="16sp"
                     android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/btnVoiceSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="6dp"
+                    android:text="🎤"
+                    android:textSize="18sp" />
             </LinearLayout>
 
         </LinearLayout>

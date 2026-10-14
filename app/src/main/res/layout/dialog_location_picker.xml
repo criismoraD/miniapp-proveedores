@@ -119,6 +119,31 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Lista de zonas ficticias (restaurada) -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="O elige tu zona de siempre"
+        android:textColor="@color/navy_primary"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxHeight="300dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/llLocationListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+
     <!-- Exclusivamente por GPS o pinear desde el mapa -->
     <TextView
         android:id="@+id/btnUseGps"
