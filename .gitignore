@@ -12,3 +12,7 @@ app/build/
 /captures
 .externalNativeBuild
 .cxx
+
+# Distribucion y portables
+Distribucion_Portable/
+
