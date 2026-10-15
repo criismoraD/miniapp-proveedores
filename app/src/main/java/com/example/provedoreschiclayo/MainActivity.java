@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     private boolean pendingCatalogIntro = false;
     /** true cuando el usuario ocultó la ventana de voz para navegar la app. */
     private boolean voiceMinimized = false;
+    /** true cuando el usuario pausó la voz del asistente (deja de escuchar y de hablar). */
+    private boolean voicePaused = false;
 
     private List<DistrictLocation> locations;
     private DistrictLocation currentLocation;
@@ -310,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         TextView btnClose = content.findViewById(R.id.btnVoiceClose);
         TextView btnMinimize = content.findViewById(R.id.btnVoiceMinimize);
-        TextView btnMic = content.findViewById(R.id.btnVoiceMic);
+        final TextView btnMic = content.findViewById(R.id.btnVoiceMic);
         final TextView vsug1 = content.findViewById(R.id.vsug1);
         final TextView vsug2 = content.findViewById(R.id.vsug2);
         final TextView vsug3 = content.findViewById(R.id.vsug3);
@@ -318,9 +320,26 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         if (btnClose != null) btnClose.setOnClickListener(v -> closeVoiceAssistant());
         if (btnMinimize != null) btnMinimize.setOnClickListener(v -> minimizeVoiceAssistant());
+        // El micrófono pausa/reanuda la voz: silencia el micrófono y corta el audio
+        // que esté sonando, sin cerrar la conversación.
         if (btnMic != null) btnMic.setOnClickListener(v -> {
-            if (voiceLive == null) connectVoiceLive();
-            Toast.makeText(this, "Solo habla: te estoy escuchando", Toast.LENGTH_SHORT).show();
+            if (voiceLive == null) {
+                connectVoiceLive();
+                Toast.makeText(this, "Solo habla: te estoy escuchando", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            voicePaused = !voicePaused;
+            voiceLive.setPaused(voicePaused);
+            btnMic.setText(voicePaused ? "🔇" : "🎤");
+            btnMic.setBackgroundResource(voicePaused
+                    ? R.drawable.bg_pill_gray : R.drawable.bg_gold_button);
+            if (tvVoicePulse != null) tvVoicePulse.setText(voicePaused ? "⏸" : "🟢");
+            setVoiceStatus(voicePaused
+                    ? "Voz en pausa · toca 🔇 para reanudar"
+                    : "Te escucho… habla con naturalidad");
+            Toast.makeText(this, voicePaused
+                    ? "Voz en pausa · el asistente no te escucha"
+                    : "Voz reanudada", Toast.LENGTH_SHORT).show();
         });
         if (vsug1 != null) vsug1.setOnClickListener(v -> sendVoiceHint(String.valueOf(vsug1.getText())));
         if (vsug2 != null) vsug2.setOnClickListener(v -> sendVoiceHint(String.valueOf(vsug2.getText())));
@@ -349,8 +368,15 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
         if (resumeSession) {
             // Ventana restaurada: la sesión sigue viva, solo se repinta.
             voiceMinimized = false;
-            setVoiceStatus("Te escucho… habla con naturalidad");
-            if (tvVoicePulse != null) tvVoicePulse.setText("🟢");
+            if (btnMic != null) {
+                btnMic.setText(voicePaused ? "🔇" : "🎤");
+                btnMic.setBackgroundResource(voicePaused
+                        ? R.drawable.bg_pill_gray : R.drawable.bg_gold_button);
+            }
+            setVoiceStatus(voicePaused
+                    ? "Voz en pausa · toca 🔇 para reanudar"
+                    : "Te escucho… habla con naturalidad");
+            if (tvVoicePulse != null) tvVoicePulse.setText(voicePaused ? "⏸" : "🟢");
             if (tvVoiceReply != null) {
                 tvVoiceReply.setText("Asistente: seguimos, dime qué más buscas");
             }
@@ -407,6 +433,8 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
             @Override public void onStatus(final String status) {
                 runOnUiThread(() -> {
+                    // Si el usuario pausó la voz, el estado del botón manda.
+                    if (voicePaused) return;
                     setVoiceStatus(status);
                     if (tvVoicePulse != null && tvVoicePulse.getText().toString().equals("🔴")
                             && status != null && status.toLowerCase(Locale.ROOT).contains("escucho")) {
@@ -466,6 +494,7 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
             voiceLive.close();
             voiceLive = null;
         }
+        voicePaused = false;
         pendingCatalogIntro = false;
         voiceMinimized = false;
     }
