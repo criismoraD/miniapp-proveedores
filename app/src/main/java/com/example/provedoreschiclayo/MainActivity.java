@@ -14,13 +14,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.speech.RecognizerIntent;
-import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -48,7 +49,8 @@ import com.example.provedoreschiclayo.models.Product;
 import com.example.provedoreschiclayo.models.Supplier;
 import com.example.provedoreschiclayo.models.SupplierOffer;
 import com.example.provedoreschiclayo.ui.Motion;
-import com.example.provedoreschiclayo.voice.VoiceAssistant;
+import com.example.provedoreschiclayo.voice.GeminiConfig;
+import com.example.provedoreschiclayo.voice.ProveeLiveClient;
 import com.example.provedoreschiclayo.voice.VoiceQueryEngine;
 
 import java.io.UnsupportedEncodingException;
@@ -71,12 +73,13 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     private static final long GPS_TIMEOUT_MS = 20 * 1000L;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
 
-    // Asistente de voz (STT + TTS + Gemini/motor local)
-    private ActivityResultLauncher<android.content.Intent> voiceLauncher;
+    // Asistente de voz en vivo (Gemini Live: audio bidireccional)
     private ActivityResultLauncher<String> voicePermLauncher;
-    private VoiceAssistant voiceAssistant;
+    private ProveeLiveClient voiceLive;
     private Dialog voiceDialog;
-    private String lastVoiceFilter;
+    private boolean pendingCatalogIntro = false;
+    /** true cuando el usuario ocultó la ventana de voz para navegar la app. */
+    private boolean voiceMinimized = false;
 
     private List<DistrictLocation> locations;
     private DistrictLocation currentLocation;
@@ -105,9 +108,11 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
     // Vistas del diálogo del asistente de voz
     private TextView tvVoiceStatus;
     private TextView tvVoiceTranscript;
+    private TextView tvVoiceReply;
     private TextView tvVoiceTitle;
+    private TextView tvVoiceChip;
+    private TextView tvVoicePulse;
     private LinearLayout llVoiceRows;
-    private TextView btnVoiceFilter;
 
     private TextView chipCatAll, chipCatDrinks, chipCatGroceries, chipCatSweets, chipCatCleaning;
 
@@ -130,31 +135,11 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
                 new ActivityResultContracts.RequestMultiplePermissions(),
                 this::onLocationPermissionResult);
 
-        voiceLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        List<String> texts = result.getData()
-                                .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                        if (texts != null && !texts.isEmpty()) {
-                            final String heard = texts.get(0);
-                            runOnUiThread(() -> {
-                                if (tvVoiceTranscript != null) tvVoiceTranscript.setText(heard);
-                                processVoiceQuery(heard);
-                            });
-                        } else {
-                            setVoiceStatus("No escuché nada, inténtalo de nuevo 🎤");
-                        }
-                    } else {
-                        setVoiceStatus("Listo, presiona el micrófono y pregunta 🎤");
-                    }
-                });
-
         voicePermLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 granted -> {
                     if (granted) {
-                        startListening();
+                        connectVoiceLive();
                     } else {
                         setVoiceStatus("Necesito permiso del micrófono para escucharte 🎤");
                         Toast.makeText(this, "Activa el permiso de micrófono para usar el asistente",
@@ -263,7 +248,13 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
         // Asistente de voz: preguntar por productos, proveedores, zonas y envíos
         if (btnVoiceSearch != null) {
-            btnVoiceSearch.setOnClickListener(v -> openVoiceAssistant());
+            btnVoiceSearch.setOnClickListener(v -> {
+                if (voiceMinimized || (voiceDialog != null && voiceDialog.isShowing())) {
+                    restoreVoiceAssistant();
+                } else {
+                    openVoiceAssistant();
+                }
+            });
         }
     }
 
@@ -271,39 +262,54 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
 
     @Override
     protected void onDestroy() {
-        if (voiceAssistant != null) {
-            voiceAssistant.shutdown();
-            voiceAssistant = null;
-        }
+        stopVoiceLive();
         super.onDestroy();
     }
 
     private void openVoiceAssistant() {
-        if (voiceAssistant == null) {
-            voiceAssistant = new VoiceAssistant();
-            voiceAssistant.initTts(this);
-        }
         if (voiceDialog != null && voiceDialog.isShowing()) return;
+        if (!GeminiConfig.hasKeys()) {
+            Toast.makeText(this, "Falta la clave de Gemini en local.properties",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        // Si ya hay sesión abierta (solo estaba minimizada), NO se reinicia:
+        // se reutiliza y se reengancha al diálogo nuevo.
+        final boolean resumeSession = voiceLive != null;
 
         voiceDialog = new Dialog(this);
         voiceDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        voiceDialog.setCancelable(true);
+
+        View content = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_voice_assistant, null);
+        voiceDialog.setContentView(content);
+
+        // La ventana ocupa todo el ancho y se ancla ARRIBA (deja ver la lista
+        // de productos de abajo mientras se filtra en vivo).
         Window w = voiceDialog.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            w.setLayout(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            w.setGravity(Gravity.TOP);
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            int height = (int) (dm.heightPixels * 0.78f);
+            w.setLayout((int) (dm.widthPixels * 0.96f), height);
+            WindowManager.LayoutParams lp = w.getAttributes();
+            lp.gravity = Gravity.TOP;
+            lp.y = (int) (dm.heightPixels * 0.03f);
+            w.setAttributes(lp);
         }
-        View content = LayoutInflater.from(this).inflate(R.layout.dialog_voice_assistant, null);
-        voiceDialog.setContentView(content);
-        voiceDialog.setCancelable(true);
 
         tvVoiceStatus = content.findViewById(R.id.tvVoiceStatus);
         tvVoiceTranscript = content.findViewById(R.id.tvVoiceTranscript);
+        tvVoiceReply = content.findViewById(R.id.tvVoiceReply);
         tvVoiceTitle = content.findViewById(R.id.tvVoiceTitle);
+        tvVoiceChip = content.findViewById(R.id.tvVoiceChip);
+        tvVoicePulse = content.findViewById(R.id.tvVoicePulse);
         llVoiceRows = content.findViewById(R.id.llVoiceRows);
-        btnVoiceFilter = content.findViewById(R.id.btnVoiceFilter);
 
         TextView btnClose = content.findViewById(R.id.btnVoiceClose);
+        TextView btnMinimize = content.findViewById(R.id.btnVoiceMinimize);
         TextView btnMic = content.findViewById(R.id.btnVoiceMic);
         final TextView vsug1 = content.findViewById(R.id.vsug1);
         final TextView vsug2 = content.findViewById(R.id.vsug2);
@@ -311,63 +317,203 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
         final TextView vsug4 = content.findViewById(R.id.vsug4);
 
         if (btnClose != null) btnClose.setOnClickListener(v -> closeVoiceAssistant());
-        if (btnMic != null) btnMic.setOnClickListener(v -> checkMicAndListen());
-        if (vsug1 != null) vsug1.setOnClickListener(v -> processVoiceQuery(String.valueOf(vsug1.getText())));
-        if (vsug2 != null) vsug2.setOnClickListener(v -> processVoiceQuery(String.valueOf(vsug2.getText())));
-        if (vsug3 != null) vsug3.setOnClickListener(v -> processVoiceQuery(String.valueOf(vsug3.getText())));
-        if (vsug4 != null) vsug4.setOnClickListener(v -> processVoiceQuery(String.valueOf(vsug4.getText())));
-        if (btnVoiceFilter != null) {
-            btnVoiceFilter.setVisibility(View.GONE);
-            btnVoiceFilter.setOnClickListener(v -> {
-                if (lastVoiceFilter != null && !lastVoiceFilter.isEmpty()) {
-                    etSearch.setText(lastVoiceFilter);
-                }
-                closeVoiceAssistant();
-            });
+        if (btnMinimize != null) btnMinimize.setOnClickListener(v -> minimizeVoiceAssistant());
+        if (btnMic != null) btnMic.setOnClickListener(v -> {
+            if (voiceLive == null) connectVoiceLive();
+            Toast.makeText(this, "Solo habla: te estoy escuchando", Toast.LENGTH_SHORT).show();
+        });
+        if (vsug1 != null) vsug1.setOnClickListener(v -> sendVoiceHint(String.valueOf(vsug1.getText())));
+        if (vsug2 != null) vsug2.setOnClickListener(v -> sendVoiceHint(String.valueOf(vsug2.getText())));
+        if (vsug3 != null) vsug3.setOnClickListener(v -> sendVoiceHint(String.valueOf(vsug3.getText())));
+        if (vsug4 != null) vsug4.setOnClickListener(v -> {
+            etSearch.setText("");
+            applyVoiceFilter(null, null);
+            sendVoiceHint("Muéstrame todo el catálogo otra vez");
+        });
+
+        tvVoiceTranscript.setText("Tú: …");
+        tvVoiceReply.setText("Asistente: preparando la sesión…");
+        // OJO: dismiss sin cerrar la sesión -> se usa para MINIMIZAR.
+        voiceDialog.setOnDismissListener(d -> {
+            voiceDialog = null;
+            tvVoiceStatus = null;
+            tvVoiceTranscript = null;
+            tvVoiceReply = null;
+            tvVoiceTitle = null;
+            tvVoiceChip = null;
+            tvVoicePulse = null;
+            llVoiceRows = null;
+        });
+        voiceDialog.show();
+
+        if (resumeSession) {
+            // Ventana restaurada: la sesión sigue viva, solo se repinta.
+            voiceMinimized = false;
+            setVoiceStatus("Te escucho… habla con naturalidad");
+            if (tvVoicePulse != null) tvVoicePulse.setText("🟢");
+            if (tvVoiceReply != null) {
+                tvVoiceReply.setText("Asistente: seguimos, dime qué más buscas");
+            }
+            renderVoiceProducts(new ArrayList<>(filteredProducts), currentSearchQuery, "");
+            return;
         }
 
-        lastVoiceFilter = null;
-        setVoiceStatus("Presiona el micrófono y pregunta 🎤");
-        voiceDialog.show();
+        // El contexto (catálogo) se manda como primer turno cuando la sesión ya está lista.
+        pendingCatalogIntro = true;
+        // La sesión se abre en cuanto haya permiso de micrófono.
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED) {
+            connectVoiceLive();
+        } else {
+            voicePermLauncher.launch(Manifest.permission.RECORD_AUDIO);
+        }
     }
 
+    /** Abre la sesión de voz en vivo con Gemini Live. */
+    private void connectVoiceLive() {
+        if (voiceLive != null) return;
+        setVoiceStatus("Conectando…");
+
+        voiceLive = new ProveeLiveClient(GeminiConfig.FREE_API_KEY, "Puck",
+                new ProveeLiveClient.Listener() {
+            @Override public void onReady() {
+                runOnUiThread(() -> {
+                    setVoiceStatus("Te escucho… habla con naturalidad");
+                    if (tvVoicePulse != null) tvVoicePulse.setText("🟢");
+                    if (tvVoiceReply != null) tvVoiceReply.setText("Asistente: listo, dime qué buscas");
+                    pushCatalogIntroIfPending();
+                });
+            }
+
+            @Override public void onUserSaid(final String text) {
+                runOnUiThread(() -> {
+                    if (tvVoiceTranscript == null) return;
+                    String prev = String.valueOf(tvVoiceTranscript.getText());
+                    String line = prev.startsWith("Tú: ") && !prev.endsWith("…")
+                            ? prev + " " + text : "Tú: " + text;
+                    tvVoiceTranscript.setText(line);
+                });
+            }
+
+            @Override public void onModelSaid(final String text) {
+                runOnUiThread(() -> {
+                    if (tvVoiceReply == null) return;
+                    String prev = String.valueOf(tvVoiceReply.getText());
+                    String base = prev.startsWith("Asistente: ") ? prev : "Asistente: ";
+                    if (base.endsWith("…")) base = "Asistente: ";
+                    tvVoiceReply.setText(base + text);
+                });
+            }
+
+            @Override public void onStatus(final String status) {
+                runOnUiThread(() -> {
+                    setVoiceStatus(status);
+                    if (tvVoicePulse != null && tvVoicePulse.getText().toString().equals("🔴")
+                            && status != null && status.toLowerCase(Locale.ROOT).contains("escucho")) {
+                        tvVoicePulse.setText("🟢");
+                    }
+                });
+            }
+
+            @Override public void onInterrupted() {
+                runOnUiThread(() -> {
+                    if (tvVoiceReply != null) tvVoiceReply.setText("Asistente: …");
+                });
+            }
+
+            @Override public void onError(final String message) {
+                runOnUiThread(() -> {
+                    setVoiceStatus("Error de conexión");
+                    if (tvVoiceReply != null) tvVoiceReply.setText("Asistente: " + message);
+                    if (tvVoicePulse != null) tvVoicePulse.setText("🔴");
+                });
+            }
+
+            @Override public void onClosed() {
+                runOnUiThread(() -> {
+                    if (voiceDialog != null && voiceDialog.isShowing()) {
+                        setVoiceStatus("Sesión cerrada");
+                    }
+                    if (tvVoicePulse != null) tvVoicePulse.setText("🔴");
+                });
+            }
+
+            @Override public int onFilterProducts(String query, String category) {
+                final int[] count = {0};
+                runOnUiThread(() -> count[0] = applyVoiceFilter(query, category));
+                try { Thread.sleep(220); } catch (InterruptedException ignored) {}
+                return count[0];
+            }
+        });
+        voiceLive.connect();
+    }
+
+    /** Manda un turno de texto a la sesión en vivo (chips de sugerencia). */
+    private void sendVoiceHint(String text) {
+        if (text == null || text.trim().isEmpty()) return;
+        pushCatalogIntroIfPending();
+        if (voiceLive == null || !voiceLive.isConnected()) {
+            Toast.makeText(this, "Conectando, inténtalo en un segundo", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        voiceLive.sendText(text);
+        if (tvVoiceTranscript != null) tvVoiceTranscript.setText("Tú: " + text);
+        setVoiceStatus("Pensando…");
+    }
+
+    private void stopVoiceLive() {
+        if (voiceLive != null) {
+            voiceLive.close();
+            voiceLive = null;
+        }
+        pendingCatalogIntro = false;
+        voiceMinimized = false;
+    }
+
+    /** Cierra la sesión de voz por completo (botón ✕). */
     private void closeVoiceAssistant() {
-        if (voiceAssistant != null) voiceAssistant.stopSpeaking();
-        if (voiceDialog != null && voiceDialog.isShowing()) voiceDialog.dismiss();
-        tvVoiceStatus = null;
-        tvVoiceTranscript = null;
-        tvVoiceTitle = null;
-        llVoiceRows = null;
-        btnVoiceFilter = null;
+        stopVoiceLive();
+        if (voiceDialog != null && voiceDialog.isShowing()) {
+            voiceDialog.dismiss();
+        }
     }
 
     private void setVoiceStatus(String text) {
         if (tvVoiceStatus != null) tvVoiceStatus.setText(text);
     }
 
-    private void checkMicAndListen() {
-        if (voiceAssistant != null) voiceAssistant.stopSpeaking();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                == PackageManager.PERMISSION_GRANTED) {
-            startListening();
-        } else {
-            voicePermLauncher.launch(Manifest.permission.RECORD_AUDIO);
+    /**
+     * Abre el detalle de un producto desde el panel de voz. Primero oculta la
+     * ventana de chat para que se pueda navegar la pantalla principal.
+     */
+    private void openProductFromVoice(Product product) {
+        if (product == null) return;
+        minimizeVoiceAssistant();
+        showSupplierComparisonDialog(product);
+    }
+
+    /**
+     * Oculta la ventana del chat sin cerrar la sesión de voz, para poder
+     * navegar por la pantalla principal. Se vuelve a abrir con el botón 🎤.
+     */
+    private void minimizeVoiceAssistant() {
+        if (voiceDialog != null && voiceDialog.isShowing()) {
+            voiceMinimized = true;
+            voiceDialog.dismiss();
         }
     }
 
-    private void startListening() {
-        try {
-            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-PE");
-            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Pregunta sobre productos, proveedores o zonas");
-            voiceLauncher.launch(intent);
-            setVoiceStatus("Te escucho… 🎤");
-        } catch (Exception e) {
-            setVoiceStatus("Este dispositivo no permite dictado por voz");
-            Toast.makeText(this, "Voz no disponible en este equipo", Toast.LENGTH_SHORT).show();
-        }
+    /** Reabre la ventana del chat si estaba minimizada (misma sesión Live). */
+    private void restoreVoiceAssistant() {
+        voiceMinimized = false;
+        openVoiceAssistant();
+    }
+
+    /** Manda el catálogo como primer turno una vez que la sesión está lista. */
+    private void pushCatalogIntroIfPending() {
+        if (!pendingCatalogIntro || voiceLive == null) return;
+        pendingCatalogIntro = false;
+        voiceLive.sendText("Contexto (catálogo actual):\n" + ProveeLiveClient.catalog(buildVoiceCtx()));
     }
 
     private VoiceQueryEngine.Ctx buildVoiceCtx() {
@@ -379,51 +525,167 @@ public class MainActivity extends AppCompatActivity implements ProductAdapter.On
         return ctx;
     }
 
-    private void processVoiceQuery(String question) {
-        if (question == null || question.trim().isEmpty()) return;
-        if (voiceAssistant == null) return;
-        setVoiceStatus("Pensando… ⏳");
-        if (btnVoiceFilter != null) btnVoiceFilter.setVisibility(View.GONE);
-        voiceAssistant.ask(question, buildVoiceCtx(), new VoiceAssistant.Reply() {
-            @Override
-            public void onReply(final String title, final List<String> rows,
-                               final String spoken, final String filterQuery) {
-                runOnUiThread(() -> {
-                    renderVoiceAnswer(title, rows);
-                    lastVoiceFilter = filterQuery;
-                    if (btnVoiceFilter != null) {
-                        btnVoiceFilter.setVisibility(filterQuery != null && !filterQuery.isEmpty()
-                                ? View.VISIBLE : View.GONE);
-                    }
-                    setVoiceStatus("Puedes seguir preguntando 🎤");
-                    voiceAssistant.speak(spoken);
-                });
-            }
+    /**
+     * Filtra la lista de productos de la pantalla principal y refleja el
+     * resultado en el panel "Productos en pantalla" del diálogo.
+     * Devuelve cuántos productos quedaron.
+     */
+    private int applyVoiceFilter(String query, String category) {
+        String q = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        String cat = category == null ? "" : category.trim();
 
-            @Override
-            public void onError(final String message) {
-                runOnUiThread(() -> setVoiceStatus("No pude responder, inténtalo de nuevo"));
+        // 1) Reflejar el resultado en el buscador real de la pantalla de atrás.
+        if (etSearch != null) etSearch.setText(q);
+
+        // 2) Si el modelo mandó una categoría explícita, marcar el chip.
+        if (!cat.isEmpty() && !"todas".equalsIgnoreCase(cat) && !"all".equalsIgnoreCase(cat)) {
+            TextView match = null;
+            if (cat.equalsIgnoreCase("Bebidas")) match = chipCatDrinks;
+            else if (cat.equalsIgnoreCase("Abarrotes")) match = chipCatGroceries;
+            else if (cat.equalsIgnoreCase("Golosinas")) match = chipCatSweets;
+            else if (cat.equalsIgnoreCase("Limpieza")) match = chipCatCleaning;
+            if (match != null) selectCategory(match.getText().toString(), match);
+        }
+
+        // 3) Resolver sobre la lista ya filtrada.
+        List<Product> result = new ArrayList<>();
+        for (Product p : filteredProducts) {
+            if (!q.isEmpty() && !matchesProduct(p, q)) continue;
+            result.add(p);
+        }
+        if (result.isEmpty() && !q.isEmpty()) {
+            // Ningún match por consulta: probar por categoría escrita en texto libre.
+            for (Product p : filteredProducts) {
+                if (p.category != null && p.category.toLowerCase(Locale.ROOT).contains(q)) result.add(p);
             }
-        });
+            if (!result.isEmpty() && etSearch != null) etSearch.setText("");
+        }
+
+        renderVoiceProducts(result, q, cat);
+        return result.size();
     }
 
-    private void renderVoiceAnswer(String title, List<String> rows) {
+    /** Coincidencia de un producto con el texto libre (nombre, marca, presentación, proveedor). */
+    private boolean matchesProduct(Product p, String q) {
+        if (p == null) return false;
+        String name = p.name == null ? "" : p.name.toLowerCase(Locale.ROOT);
+        String brand = p.brand == null ? "" : p.brand.toLowerCase(Locale.ROOT);
+        String pres = p.presentation == null ? "" : p.presentation.toLowerCase(Locale.ROOT);
+        String cat = p.category == null ? "" : p.category.toLowerCase(Locale.ROOT);
+        if (name.contains(q) || brand.contains(q) || pres.contains(q) || cat.contains(q)) return true;
+        if (p.offers != null) {
+            for (SupplierOffer o : p.offers) {
+                if (o != null && o.supplier != null && o.supplier.name != null
+                        && o.supplier.name.toLowerCase(Locale.ROOT).contains(q)) return true;
+            }
+        }
+        return false;
+    }
+
+    /** Pinta en el panel del diálogo los productos que quedaron tras el filtro. */
+    private void renderVoiceProducts(List<Product> result, String query, String category) {
         if (tvVoiceTitle != null) {
-            tvVoiceTitle.setText(title != null ? title : "🎙️  Asistente ProveeChiclayo");
-            tvVoiceTitle.setVisibility(View.VISIBLE);
+            tvVoiceTitle.setText(result.isEmpty()
+                    ? "Sin resultados"
+                    : result.size() + (result.size() == 1 ? " producto" : " productos"));
+        }
+        if (tvVoiceChip != null) {
+            String label = !query.isEmpty() ? "«" + query + "»"
+                    : (category != null && !category.isEmpty() ? category : "");
+            if (label.isEmpty()) {
+                tvVoiceChip.setVisibility(View.GONE);
+            } else {
+                tvVoiceChip.setText(label);
+                tvVoiceChip.setVisibility(View.VISIBLE);
+            }
         }
         if (llVoiceRows == null) return;
         llVoiceRows.removeAllViews();
-        if (rows != null) {
-            for (String row : rows) {
-                TextView tv = new TextView(this);
-                tv.setText(row);
-                tv.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
-                tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
-                int pad = (int) (8 * getResources().getDisplayMetrics().density);
-                tv.setPadding(0, pad / 2, 0, pad / 2);
-                llVoiceRows.addView(tv);
+
+        if (result.isEmpty()) {
+            TextView tv = new TextView(this);
+            tv.setText("Nada coincide con esa búsqueda. Prueba con otro nombre o pide \"ver todo\".");
+            tv.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+            llVoiceRows.addView(tv);
+            return;
+        }
+
+        int limit = Math.min(result.size(), 8);
+        for (int i = 0; i < limit; i++) {
+            final Product p = result.get(i);
+            SupplierOffer cheap = p.getLowestPriceOffer();
+            SupplierOffer nice = currentLocation != null
+                    ? p.getMostConvenientOffer(currentLocation, 1) : null;
+
+            // Fila: datos del producto (izquierda) + botón "Ver" (derecha).
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            int pad = (int) (7 * getResources().getDisplayMetrics().density);
+            row.setPadding(0, pad, 0, pad);
+            row.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            LinearLayout info = new LinearLayout(this);
+            info.setOrientation(LinearLayout.VERTICAL);
+            info.setLayoutParams(new LinearLayout.LayoutParams(
+                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+            TextView name = new TextView(this);
+            name.setText(p.name + "  ·  " + p.brand);
+            name.setTextColor(ContextCompat.getColor(this, R.color.navy_primary));
+            name.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+            name.setTypeface(null, android.graphics.Typeface.BOLD);
+            info.addView(name);
+
+            StringBuilder detail = new StringBuilder();
+            detail.append(String.format(Locale.US, "Desde %.2f soles", cheap.price));
+            if (nice != null) {
+                detail.append("  ·  ").append(nice.supplier.name)
+                      .append(String.format(Locale.US, " (%.2f con flete)",
+                              nice.calculateTotalCost(currentLocation, 1)));
             }
+            TextView sub = new TextView(this);
+            sub.setText(detail.toString());
+            sub.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            sub.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11);
+            info.addView(sub);
+
+            row.addView(info);
+
+            // Abre el detalle del producto (comparador de proveedores).
+            TextView btnSee = new TextView(this);
+            btnSee.setText("Ver");
+            btnSee.setTextColor(ContextCompat.getColor(this, R.color.white));
+            btnSee.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11);
+            btnSee.setTypeface(null, android.graphics.Typeface.BOLD);
+            btnSee.setGravity(Gravity.CENTER);
+            btnSee.setBackgroundResource(R.drawable.bg_navy_button);
+            int hp = (int) (12 * getResources().getDisplayMetrics().density);
+            int vp = (int) (6 * getResources().getDisplayMetrics().density);
+            btnSee.setPadding(hp, vp, hp, vp);
+            btnSee.setClickable(true);
+            btnSee.setFocusable(true);
+            LinearLayout.LayoutParams btnLp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            btnLp.setMarginStart((int) (8 * getResources().getDisplayMetrics().density));
+            btnSee.setLayoutParams(btnLp);
+            btnSee.setOnClickListener(v -> openProductFromVoice(p));
+            row.addView(btnSee);
+
+            llVoiceRows.addView(row);
+        }
+
+        if (result.size() > limit) {
+            TextView more = new TextView(this);
+            more.setText("…y " + (result.size() - limit) + " más en la lista de abajo");
+            more.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            more.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11);
+            more.setPadding(0, (int) (4 * getResources().getDisplayMetrics().density), 0, 0);
+            llVoiceRows.addView(more);
         }
     }
 

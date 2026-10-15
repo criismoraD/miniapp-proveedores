@@ -4,9 +4,12 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_rounded_sheet"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="12dp">
 
-    <!-- Header -->
+    <!-- ===================== Header ===================== -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -20,10 +23,11 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/tvVoicePulse"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🎙️"
-                android:textSize="22sp" />
+                android:text="🔴"
+                android:textSize="14sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -34,32 +38,67 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Asistente ProveeChiclayo"
+                    android:text="🎙️  Asistente en vivo"
                     android:textColor="@color/navy_primary"
                     android:textSize="17sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tvVoiceStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Productos, proveedores, zonas y envíos"
+                    android:text="Conectando…"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/btnVoiceClose"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/bg_circle_icon"
-            android:gravity="center"
-            android:text="✕"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnVoiceMic"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_gold_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="🎤"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/btnVoiceMinimize"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_circle_icon"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="⌄"
+                android:textColor="@color/text_secondary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnVoiceClose"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_circle_icon"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="✕"
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </RelativeLayout>
 
     <View
@@ -69,107 +108,110 @@
         android:layout_marginBottom="10dp"
         android:background="@color/border_light" />
 
-    <!-- Estado -->
-    <TextView
-        android:id="@+id/tvVoiceStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Toca el micrófono y pregunta"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp" />
-
-    <!-- Botón de micrófono -->
-    <TextView
-        android:id="@+id/btnVoiceMic"
-        android:layout_width="68dp"
-        android:layout_height="68dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/bg_gold_button"
-        android:gravity="center"
-        android:text="🎤"
-        android:textSize="28sp"
-        android:clickable="true"
-        android:focusable="true" />
-
-    <!-- Lo que dijo el usuario -->
-    <TextView
-        android:id="@+id/tvVoiceTranscript"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center"
-        android:textStyle="italic"
-        android:textColor="@color/navy_primary"
-        android:textSize="14sp"
-        android:visibility="gone" />
-
-    <!-- Respuesta -->
-    <ScrollView
+    <!-- ============ En pantalla: filtrado en vivo ============ -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_weight="1">
+        android:layout_weight="1.4"
+        android:background="@drawable/bg_card_white"
+        android:orientation="vertical"
+        android:padding="12dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvVoicePanelLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_card_white"
-            android:orientation="vertical"
-            android:padding="14dp">
+            android:text="Productos en pantalla"
+            android:textAllCaps="true"
+            android:textColor="@color/text_secondary"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tvVoiceTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Todo el catálogo"
+            android:textColor="@color/navy_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvVoiceTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="👋 ¡Hola! Pregúntame lo que quieras"
-                android:textColor="@color/navy_primary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tvVoiceChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_chip_selected"
+            android:paddingStart="10dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="4dp"
+            android:text="Sin filtro"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:visibility="gone" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical">
 
             <LinearLayout
                 android:id="@+id/llVoiceRows"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
                 android:orientation="vertical" />
-        </LinearLayout>
-    </ScrollView>
+        </ScrollView>
+    </LinearLayout>
 
-    <!-- Ver productos en la lista -->
-    <TextView
-        android:id="@+id/btnVoiceFilter"
+    <!-- ============ Conversación: transcripciones ============ -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/bg_navy_button"
-        android:gravity="center"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:text="🔍 Ver estos productos en la lista"
-        android:textColor="@color/white"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:clickable="true"
-        android:focusable="true" />
+        android:layout_weight="1"
+        android:background="@drawable/bg_chip_unselected"
+        android:orientation="vertical"
+        android:padding="12dp">
 
-    <!-- Sugerencias -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Prueba preguntando:"
-        android:textColor="@color/text_secondary"
-        android:textSize="11sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Conversación"
+            android:textAllCaps="true"
+            android:textColor="@color/text_secondary"
+            android:textSize="10sp"
+            android:textStyle="bold" />
 
+        <TextView
+            android:id="@+id/tvVoiceTranscript"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Tú: —"
+            android:textColor="@color/navy_primary"
+            android:textSize="13sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/tvVoiceReply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Asistente: te escucho…"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- ============ Sugerencias ============ -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="10dp"
         android:clipToPadding="false"
-        android:horizontalScrollBarEnabled="false">
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -187,7 +229,7 @@
                 android:paddingTop="7dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="7dp"
-                android:text="¿Cuál es el arroz más barato?"
+                android:text="Muéstrame arroz"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
@@ -219,7 +261,7 @@
                 android:paddingTop="7dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="7dp"
-                android:text="¿Teléfono del mayorista de La Victoria?"
+                android:text="Los más baratos"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
@@ -235,7 +277,7 @@
                 android:paddingTop="7dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="7dp"
-                android:text="¿Qué zonas cubren?"
+                android:text="Ver todo otra vez"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>

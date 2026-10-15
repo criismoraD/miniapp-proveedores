@@ -18,6 +18,9 @@ public final class GeminiConfig {
             "https://generativelanguage.googleapis.com/v1beta/models/";
     public static final String TEXT_MODEL = "gemini-3.5-flash-lite";
 
+    /** Modelo de la Live API (conversación por voz en tiempo real). */
+    public static final String LIVE_MODEL = "gemini-3.8-live";
+
     public static boolean hasKeys() {
         return (FREE_API_KEY != null && !FREE_API_KEY.isEmpty())
                 || (PAID_API_KEY != null && !PAID_API_KEY.isEmpty());

@@ -58,6 +58,8 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)
+    // Cliente WebSocket para la Gemini Live API (conversación por voz en vivo).
+    implementation(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
